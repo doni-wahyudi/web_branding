@@ -1,0 +1,250 @@
+.relawan-page {
+  padding-top: var(--navbar-height);
+}
+
+.relawan-hero {
+  padding: 80px 0 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.relawan-hero::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: var(--color-secondary-glow);
+  filter: blur(120px);
+  opacity: 0.2;
+}
+
+.relawan-hero .section-subtitle {
+  margin: 12px auto 0;
+}
+
+/* Why Join */
+.relawan-why {
+  padding: 60px 0;
+}
+
+.relawan-why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.relawan-why-card {
+  padding: 32px 24px;
+  background: var(--color-bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  transition: var(--transition-smooth);
+}
+
+.relawan-why-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+
+.relawan-why-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--color-primary-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 24px;
+  color: var(--color-primary-light);
+}
+
+.relawan-why-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.relawan-why-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+/* Form */
+.relawan-form-section {
+  padding: 0 0 100px;
+}
+
+.relawan-form-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px;
+  background: var(--color-bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.relawan-form-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.relawan-form-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+}
+
+/* Radio group */
+.form-radio-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-radio-option {
+  flex: 1;
+  min-width: 150px;
+}
+
+.form-radio-option input {
+  display: none;
+}
+
+.form-radio-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.form-radio-option input:checked + .form-radio-label {
+  background: var(--color-primary-glow);
+  border-color: var(--color-primary);
+  color: var(--color-primary-light);
+}
+
+.form-radio-label:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* Counter Banner */
+.relawan-counter {
+  padding: 60px 0;
+  background: var(--color-bg-secondary);
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+}
+
+.relawan-counter-number {
+  font-size: var(--font-size-5xl);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.relawan-counter-label {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+
+/* Testimonials */
+.relawan-testimonials {
+  padding: 80px 0;
+}
+
+.relawan-testimonials-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.testimonial-card {
+  padding: 28px;
+  background: var(--color-bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-smooth);
+}
+
+.testimonial-card:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+}
+
+.testimonial-quote {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 16px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.testimonial-quote::before {
+  content: '"';
+  position: absolute;
+  left: 0;
+  top: -4px;
+  font-size: var(--font-size-3xl);
+  color: var(--color-primary-light);
+  font-style: normal;
+  line-height: 1;
+}
+
+.testimonial-author {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.testimonial-role {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .relawan-why-grid,
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .relawan-form-wrapper {
+    padding: 24px;
+    margin: 0 16px;
+  }
+
+  .form-radio-group {
+    flex-direction: column;
+  }
+}
