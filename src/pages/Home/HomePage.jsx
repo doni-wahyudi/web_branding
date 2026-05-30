@@ -17,7 +17,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="home-hero">
         <div className="home-hero-bg">
-          <img src="/images/hero-background.png" alt="Landscape" />
+          <img src="images/hero-background.png" alt="Landscape" />
         </div>
         <div className="home-hero-content">
           <div className="home-hero-text">
@@ -43,7 +43,7 @@ export default function HomePage() {
           <div className="home-hero-image">
             <div className="home-hero-image-wrapper">
               <div className="home-hero-image-glow"></div>
-              <img src="/images/profile-hero.png" alt={siteConfig.name} />
+              <img src="images/profile-hero.png" alt={siteConfig.name} />
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="home-aspirasi-cta">
-            <Link to="/aspirasi/transparansi" className="btn-primary">
+            <Link to="/aspirasi" className="btn-primary">
               Lihat Transparansi Aspirasi <FiArrowRight />
             </Link>
           </div>

@@ -5,7 +5,6 @@ import Footer from './components/Footer/Footer';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import HomePage from './pages/Home/HomePage';
 import AspirasiPage from './pages/Aspirasi/AspirasiPage';
-import TransparansiPage from './pages/Aspirasi/TransparansiPage';
 import KabarPage from './pages/Kabar/KabarPage';
 import KabarDetailPage from './pages/Kabar/KabarDetailPage';
 import RekamJejakPage from './pages/RekamJejak/RekamJejakPage';
@@ -33,7 +32,6 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/aspirasi" element={<AspirasiPage />} />
-          <Route path="/aspirasi/transparansi" element={<TransparansiPage />} />
           <Route path="/kabar" element={<KabarPage />} />
           <Route path="/kabar/:slug" element={<KabarDetailPage />} />
           <Route path="/rekam-jejak" element={<RekamJejakPage />} />

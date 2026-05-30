@@ -50,7 +50,7 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="footer-col-title">Layanan</h4>
             <Link to="/aspirasi">Sampaikan Aspirasi</Link>
-            <Link to="/aspirasi/transparansi">Transparansi Aspirasi</Link>
+            <Link to="/aspirasi">Transparansi Aspirasi</Link>
             <Link to="/relawan">Daftar Relawan</Link>
             <Link to="/kabar">Berita Terkini</Link>
           </div>
