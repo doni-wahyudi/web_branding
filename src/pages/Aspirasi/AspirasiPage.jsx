@@ -1,13 +1,32 @@
 import { useState } from 'react';
-import { FiMessageCircle, FiUser, FiMapPin, FiCalendar, FiTag, FiCheckCircle } from 'react-icons/fi';
+import { FiMessageCircle, FiUser, FiMapPin, FiCalendar, FiTag, FiSend } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import siteConfig from '../../data/siteConfig';
 import aspirations, { statusLabels } from '../../data/aspirations';
 import './AspirasiPage.css';
 
 export default function AspirasiPage() {
+  const [form, setForm] = useState({
+    nama: '',
+    phone: '',
+    kecamatan: '',
+    category: '',
+    detail: '',
+  });
+
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const message = `*ASPIRASI RAKYAT*%0A%0A*Nama:* ${form.nama}%0A*No. HP:* ${form.phone}%0A*Kecamatan:* ${form.kecamatan}%0A*Kategori:* ${form.category}%0A%0A*Detail Aspirasi:*%0A${form.detail}`;
+    const waLink = `https://wa.me/${siteConfig.whatsapp}?text=${message}`;
+    window.open(waLink, '_blank');
+  };
 
   const filtered = aspirations.filter(a => {
     if (filterStatus !== 'all' && a.status !== filterStatus) return false;
@@ -28,60 +47,106 @@ export default function AspirasiPage() {
       <section className="aspirasi-hero">
         <div className="container">
           <div className="badge" style={{ marginBottom: '16px' }}>
-            <FiMessageCircle /> Pojok Aspirasi Rakyat
+            <FiMessageCircle /> Pojok Aspirasi Warga
           </div>
           <h1 className="section-title">Suarakan Aspirasi Anda</h1>
           <p className="section-subtitle">
-            Kami hadir untuk mendengarkan. Sampaikan aduan, saran, atau harapan Anda langsung kepada tim kami, dan pantau progres penyelesaiannya di bawah secara real-time.
+            Kami hadir untuk mendengarkan secara tulus. Isi formulir di bawah untuk menyampaikan aduan, saran, atau usulan langsung via WhatsApp, dan pantau progres penyelesaiannya secara real-time.
           </p>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Form Section */}
       <section className="aspirasi-form-section">
         <div className="container">
-          <div className="aspirasi-form-wrapper animate-fade-in-up" style={{ textAlign: 'center' }}>
-            <div className="navbar-logo-icon" style={{ margin: '0 auto 20px', width: '56px', height: '56px', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-primary-glow)', color: 'var(--color-primary-light)', borderRadius: '50%' }}>
-              <FaWhatsapp size={28} />
-            </div>
-            <h2 className="aspirasi-form-title">Hubungi Kami Langsung</h2>
-            <p className="aspirasi-form-desc" style={{ marginBottom: '24px', maxWidth: '580px', margin: '0 auto 24px' }}>
-              Saluran aspirasi kini terintegrasi langsung dengan WhatsApp Resmi tim {siteConfig.name}. Kami siap menerima keluhan pembangunan, pelayanan publik, maupun usulan program kesejahteraan.
+          <div className="aspirasi-form-wrapper animate-fade-in-up">
+            <h2 className="aspirasi-form-title">Formulir Aspirasi</h2>
+            <p className="aspirasi-form-desc">
+              Isi data diri dan detail laporan Anda. Sistem akan merangkum pesan secara otomatis sebelum dikirim langsung ke WhatsApp tim koordinasi.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '0 auto 32px', maxWidth: '640px', textAlign: 'left' }}>
-              <div style={{ padding: '16px', background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-sm)' }}>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-primary-light)', marginBottom: '6px' }}>
-                  <FiCheckCircle /> Respon Lebih Cepat
-                </h4>
-                <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                  Aspirasi langsung masuk ke koordinasi utama untuk percepatan realisasi.
-                </p>
+            <form onSubmit={handleSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Nama Lengkap</label>
+                  <input
+                    type="text"
+                    name="nama"
+                    className="form-input"
+                    placeholder="Masukkan nama lengkap Anda"
+                    value={form.nama}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">No. HP / WhatsApp</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="form-input"
+                    placeholder="08xxxxxxxxxx"
+                    value={form.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               </div>
-              <div style={{ padding: '16px', background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-sm)' }}>
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-primary-light)', marginBottom: '6px' }}>
-                  <FiCheckCircle /> Lampiran Lengkap
-                </h4>
-                <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                  Kirimkan bukti berupa foto, video, atau dokumen pendukung secara langsung.
-                </p>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Kecamatan</label>
+                  <select
+                    name="kecamatan"
+                    className="form-select"
+                    value={form.kecamatan}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Pilih Kecamatan</option>
+                    {siteConfig.kecamatan.map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Kategori Aspirasi</label>
+                  <select
+                    name="category"
+                    className="form-select"
+                    value={form.category}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Pilih Kategori</option>
+                    {siteConfig.categories.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <a
-              href={`https://wa.me/${siteConfig.whatsapp}?text=Halo%20Pak%20Ridho%20Saputra%2C%20saya%20ingin%20menyampaikan%20aspirasi%20mengenai%3A%0A%0A-%20Nama%3A%20%0A-%20Kecamatan%3A%20%0A-%20Kategori%20(Infrastruktur%2FPendidikan%2FKesehatan%2FEkonomi%2FLainnya)%3A%20%0A-%20Detail%20Aspirasi%3A%20`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary form-submit"
-              style={{ display: 'inline-flex', textDecoration: 'none', maxWidth: '440px', margin: '0 auto', fontSize: 'var(--font-size-base)', fontWeight: 700, padding: '14px 28px', gap: '10px', alignItems: 'center', justifyContent: 'center' }}
-            >
-              <FaWhatsapp size={22} /> Sampaikan Aspirasi via WhatsApp
-            </a>
+              <div className="form-group">
+                <label className="form-label">Detail Aspirasi / Aduan</label>
+                <textarea
+                  name="detail"
+                  className="form-textarea"
+                  placeholder="Jelaskan aspirasi, keluhan pembangunan, atau saran Anda secara rinci (misal: lokasi jalan rusak, kebutuhan puskesmas, dll.)..."
+                  value={form.detail}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            <div className="form-whatsapp-note" style={{ justifyContent: 'center', maxWidth: '440px', margin: '20px auto 0' }}>
-              <FaWhatsapp size={18} />
-              Saluran resmi bebas biaya & aktif mendampingi kepentingan rakyat.
-            </div>
+              <button type="submit" className="btn-primary form-submit">
+                <FiSend /> Kirim via WhatsApp
+              </button>
+
+              <div className="form-whatsapp-note">
+                <FaWhatsapp size={18} />
+                Aspirasi Anda akan diteruskan langsung ke WhatsApp Resmi tim {siteConfig.name}.
+              </div>
+            </form>
           </div>
         </div>
       </section>
