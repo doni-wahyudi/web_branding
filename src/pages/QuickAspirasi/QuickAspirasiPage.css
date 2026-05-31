@@ -64,6 +64,11 @@
   align-items: start;
 }
 
+.quick-grid-single {
+  max-width: 580px;
+  margin: 0 auto 40px;
+}
+
 .quick-qr-card,
 .quick-form-card {
   padding: 32px;

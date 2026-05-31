@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { FiMessageCircle, FiSend, FiDownload, FiMapPin, FiCheckCircle } from 'react-icons/fi';
+import { useLocation, Link } from 'react-router-dom';
+import { FiMessageCircle, FiSend, FiDownload, FiMapPin, FiCheckCircle, FiExternalLink } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import siteConfig from '../../data/siteConfig';
 import { supabase } from '../../utils/supabaseClient';
 import './QuickAspirasiPage.css';
 
 export default function QuickAspirasiPage() {
+  const location = useLocation();
+  const isSuaraOnly = location.pathname.includes('/suara');
+  const isQrOnly = location.pathname.includes('/qr-aspirasi');
+
   const [form, setForm] = useState({
     nama: '',
     phone: '',
@@ -19,9 +24,12 @@ export default function QuickAspirasiPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
-    // Resolve current URL dynamically for the QR code
-    setCurrentUrl(window.location.href);
-  }, []);
+    // Resolve current URL to point to /suara under hash routing
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    const targetHref = `${origin}${pathname}#/suara`;
+    setCurrentUrl(targetHref);
+  }, [location]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -89,137 +97,182 @@ export default function QuickAspirasiPage() {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
   const downloadQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=${encodeURIComponent(currentUrl)}&download=1`;
 
+  // Dynamic header contents based on active viewport
+  let pageBadge = (
+    <>
+      <FiMessageCircle /> Pojok Aspirasi QR
+    </>
+  );
+  let pageTitle = "Kanal Suara Rakyat";
+  let pageSubtitle = `Pindai Kode QR atau isi formulir di bawah secara instan untuk menyampaikan aduan langsung ke tim ${siteConfig.name}.`;
+
+  if (isQrOnly) {
+    pageBadge = (
+      <>
+        <FiMessageCircle /> QR Aspirasi Warga
+      </>
+    );
+    pageTitle = "Pojok Aspirasi QR";
+    pageSubtitle = `Pindai Kode QR di bawah menggunakan kamera HP Anda untuk masuk ke formulir penyampaian aduan langsung ke tim ${siteConfig.name}.`;
+  } else if (isSuaraOnly) {
+    pageBadge = (
+      <>
+        <FiMessageCircle /> Formulir Aspirasi Kilat
+      </>
+    );
+    pageTitle = "Suara Rakyat Lampung";
+    pageSubtitle = `Sampaikan aduan, aspirasi, atau masukan Anda secara cepat melalui formulir di bawah untuk diteruskan ke tim ${siteConfig.name}.`;
+  }
+
   return (
     <div className="quick-aspirasi-page">
       <div className="quick-container">
         {/* Banner header */}
         <div className="quick-header animate-fade-in-up">
           <div className="badge" style={{ marginBottom: '12px' }}>
-            <FiMessageCircle /> Pojok Aspirasi QR
+            {pageBadge}
           </div>
-          <h1 className="quick-title">Kanal Suara Rakyat</h1>
-          <p className="quick-subtitle">
-            Pindai Kode QR atau isi formulir di bawah secara instan untuk menyampaikan aduan langsung ke tim <strong>{siteConfig.name}</strong>.
-          </p>
+          <h1 className="quick-title">{pageTitle}</h1>
+          <p className="quick-subtitle">{pageSubtitle}</p>
         </div>
 
-        <div className="quick-grid animate-fade-in-up">
+        <div className={(isQrOnly || isSuaraOnly) ? "quick-grid-single animate-fade-in-up" : "quick-grid animate-fade-in-up"}>
           {/* QR Code Placard */}
-          <div className="quick-qr-card">
-            <h3 className="quick-card-title">Bagikan QR Code Aspirasi</h3>
-            <p className="quick-card-desc">
-              Tunjukkan atau cetak QR Code ini di kantor kelurahan, balai warga, baliho, atau brosur agar warga bisa langsung memindai dan mengirim aspirasi mereka secara mudah lewat handphone!
-            </p>
+          {!isSuaraOnly && (
+            <div className="quick-qr-card">
+              <h3 className="quick-card-title">Bagikan QR Code Aspirasi</h3>
+              <p className="quick-card-desc">
+                Tunjukkan atau cetak QR Code ini di kantor kelurahan, balai warga, baliho, atau brosur agar warga bisa langsung memindai dan mengirim aspirasi mereka secara mudah lewat handphone!
+              </p>
 
-            <div className="quick-qr-box">
-              {currentUrl ? (
-                <img src={qrCodeUrl} alt="QR Code Aspirasi Warga" className="quick-qr-img" />
-              ) : (
-                <div style={{ height: '220px', background: 'var(--color-bg-tertiary)', borderRadius: 'var(--border-radius)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Memuat Kode QR...</div>
+              <div className="quick-qr-box">
+                {currentUrl ? (
+                  <img src={qrCodeUrl} alt="QR Code Aspirasi Warga" className="quick-qr-img" />
+                ) : (
+                  <div style={{ height: '220px', background: 'var(--color-bg-tertiary)', borderRadius: 'var(--border-radius)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Memuat Kode QR...</div>
+                )}
+                <div className="quick-qr-badge">PINDAI SAYA</div>
+              </div>
+
+              <a href={downloadQrCodeUrl} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: 'var(--font-size-sm)' }}>
+                <FiDownload /> Unduh QR Resolusi Tinggi (Cetak)
+              </a>
+
+              {isQrOnly && (
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--color-border)', textAlign: 'center' }}>
+                  <Link to="/suara" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: 'var(--font-size-sm)' }}>
+                    <FiSend /> Tulis Aspirasi Sekarang
+                  </Link>
+                </div>
               )}
-              <div className="quick-qr-badge">PINDAI SAYA</div>
             </div>
-
-            <a href={downloadQrCodeUrl} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: 'var(--font-size-sm)' }}>
-              <FiDownload /> Unduh QR Resolusi Tinggi (Cetak)
-            </a>
-          </div>
+          )}
 
           {/* Simplified Fast Form */}
-          <div className="quick-form-card">
-            <h3 className="quick-card-title">Formulir Cepat Aspirasi</h3>
-            <p className="quick-card-desc" style={{ marginBottom: '24px' }}>
-              Isi data di bawah ini untuk menyuarakan masalah Anda dalam 1 menit:
-            </p>
+          {!isQrOnly && (
+            <div className="quick-form-card">
+              <h3 className="quick-card-title">Formulir Cepat Aspirasi</h3>
+              <p className="quick-card-desc" style={{ marginBottom: '24px' }}>
+                Isi data di bawah ini untuk menyuarakan masalah Anda dalam 1 menit:
+              </p>
 
-            {submitSuccess && (
-              <div className="quick-success-alert animate-fade-in-up">
-                <FiCheckCircle size={20} />
-                Aspirasi berhasil terkirim dan disimpan! WhatsApp sedang dibuka...
-              </div>
-            )}
+              {submitSuccess && (
+                <div className="quick-success-alert animate-fade-in-up">
+                  <FiCheckCircle size={20} />
+                  Aspirasi berhasil terkirim dan disimpan! WhatsApp sedang dibuka...
+                </div>
+              )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label className="form-label">Nama Anda</label>
-                <input
-                  type="text"
-                  name="nama"
-                  className="form-input"
-                  placeholder="Masukkan nama Anda"
-                  value={form.nama}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label className="form-label">Nama Anda</label>
+                  <input
+                    type="text"
+                    name="nama"
+                    className="form-input"
+                    placeholder="Masukkan nama Anda"
+                    value={form.nama}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label className="form-label">No. HP / WhatsApp</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="form-input"
-                  placeholder="08xxxxxxxxxx"
-                  value={form.phone}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label className="form-label">No. HP / WhatsApp</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="form-input"
+                    placeholder="08xxxxxxxxxx"
+                    value={form.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label className="form-label">Kabupaten / Kota</label>
-                <select
-                  name="kabupaten"
-                  className="form-select"
-                  value={form.kabupaten}
-                  onChange={(e) => {
-                    handleChange(e);
-                    setForm(prev => ({ ...prev, kecamatan: '' }));
-                  }}
-                  required
-                >
-                  <option value="">Pilih Kabupaten / Kota</option>
-                  {Object.keys(siteConfig.kabupatenKecamatan).map(kab => (
-                    <option key={kab} value={kab}>{kab}</option>
-                  ))}
-                </select>
-              </div>
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label className="form-label">Kabupaten / Kota</label>
+                  <select
+                    name="kabupaten"
+                    className="form-select"
+                    value={form.kabupaten}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setForm(prev => ({ ...prev, kecamatan: '' }));
+                    }}
+                    required
+                  >
+                    <option value="">Pilih Kabupaten / Kota</option>
+                    {Object.keys(siteConfig.kabupatenKecamatan).map(kab => (
+                      <option key={kab} value={kab}>{kab}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label className="form-label">Kecamatan</label>
-                <select
-                  name="kecamatan"
-                  className="form-select"
-                  value={form.kecamatan}
-                  onChange={handleChange}
-                  disabled={!form.kabupaten}
-                  required
-                >
-                  <option value="">Pilih Kecamatan</option>
-                  {form.kabupaten && siteConfig.kabupatenKecamatan[form.kabupaten]?.map(k => (
-                    <option key={k} value={k}>{k}</option>
-                  ))}
-                </select>
-              </div>
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label className="form-label">Kecamatan</label>
+                  <select
+                    name="kecamatan"
+                    className="form-select"
+                    value={form.kecamatan}
+                    onChange={handleChange}
+                    disabled={!form.kabupaten}
+                    required
+                  >
+                    <option value="">Pilih Kecamatan</option>
+                    {form.kabupaten && siteConfig.kabupatenKecamatan[form.kabupaten]?.map(k => (
+                      <option key={k} value={k}>{k}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="form-group" style={{ marginBottom: '20px' }}>
-                <label className="form-label">Aduan / Masalah Anda</label>
-                <textarea
-                  name="detail"
-                  className="form-textarea"
-                  placeholder="Jelaskan secara singkat masalah di daerah Anda (misal: jalan berlubang di RT 03/RW 04 Desa Sejahtera)..."
-                  value={form.detail}
-                  onChange={handleChange}
-                  required
-                  style={{ minHeight: '120px' }}
-                />
-              </div>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label className="form-label">Aduan / Masalah Anda</label>
+                  <textarea
+                    name="detail"
+                    className="form-textarea"
+                    placeholder="Jelaskan secara singkat masalah di daerah Anda (misal: jalan berlubang di RT 03/RW 04 Desa Sejahtera)..."
+                    value={form.detail}
+                    onChange={handleChange}
+                    required
+                    style={{ minHeight: '120px' }}
+                  />
+                </div>
 
-              <button type="submit" className="btn-primary form-submit" style={{ width: '100%', justifyContent: 'center' }} disabled={submitting}>
-                <FaWhatsapp size={18} style={{ marginRight: '6px' }} /> Kirim via WhatsApp
-              </button>
-            </form>
-          </div>
+                <button type="submit" className="btn-primary form-submit" style={{ width: '100%', justifyContent: 'center' }} disabled={submitting}>
+                  <FaWhatsapp size={18} style={{ marginRight: '6px' }} /> Kirim via WhatsApp
+                </button>
+              </form>
+
+              {isSuaraOnly && (
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--color-border)', textAlign: 'center' }}>
+                  <Link to="/qr-aspirasi" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: 'var(--font-size-sm)' }}>
+                    <FiExternalLink /> Tampilkan QR Code Aspirasi
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer note */}

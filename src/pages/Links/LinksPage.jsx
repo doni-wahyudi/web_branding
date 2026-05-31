@@ -11,7 +11,7 @@ export default function LinksPage() {
     // Generate the correct target URL for hash routing
     const origin = window.location.origin;
     const pathname = window.location.pathname;
-    setQrUrl(`${origin}${pathname}#/qr-aspirasi`);
+    setQrUrl(`${origin}${pathname}#/suara`);
   }, []);
 
   const qrCodeImageUrl = qrUrl 
@@ -86,7 +86,7 @@ export default function LinksPage() {
         <div className="links-buttons-hub">
           <h3 className="links-hub-title">Tautan Cepat & Layanan</h3>
           
-          <Link to="/qr-aspirasi" className="links-btn links-btn-primary animate-pulse-btn">
+          <Link to="/suara" className="links-btn links-btn-primary animate-pulse-btn">
             <FiMessageCircle className="links-btn-icon" />
             <div className="links-btn-text">
               <span className="links-btn-main">Formulir Kilat Aspirasi</span>
