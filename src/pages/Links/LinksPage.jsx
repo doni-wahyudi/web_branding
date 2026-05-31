@@ -1,9 +1,27 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMessageCircle, FiUsers, FiAward, FiBookOpen, FiHome, FiInstagram, FiFacebook, FiTwitter, FiYoutube } from 'react-icons/fi';
+import { FiMessageCircle, FiUsers, FiAward, FiBookOpen, FiHome, FiInstagram, FiFacebook, FiTwitter, FiYoutube, FiDownload } from 'react-icons/fi';
 import siteConfig from '../../data/siteConfig';
 import './LinksPage.css';
 
 export default function LinksPage() {
+  const [qrUrl, setQrUrl] = useState('');
+
+  useEffect(() => {
+    // Generate the correct target URL for hash routing
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    setQrUrl(`${origin}${pathname}#/qr-aspirasi`);
+  }, []);
+
+  const qrCodeImageUrl = qrUrl 
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrUrl)}` 
+    : '';
+
+  const downloadQrCodeUrl = qrUrl 
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=${encodeURIComponent(qrUrl)}&download=1` 
+    : '';
+
   return (
     <div className="links-page">
       <div className="links-container animate-fade-in-up">
@@ -28,53 +46,67 @@ export default function LinksPage() {
           </div>
         </div>
 
-        {/* Donation QRIS Card */}
+        {/* QR Code Aspiration Card */}
         <div className="links-qris-card">
           <div className="links-qris-header">
-            <span className="links-qris-badge">DONASI KAMPANYE</span>
-            <h2 className="links-qris-title">Dukung Perjuangan Kita</h2>
+            <span className="links-qris-badge" style={{ color: 'var(--color-primary-light)' }}>KODE QR SUARA RAKYAT</span>
+            <h2 className="links-qris-title">Pindai & Suarakan Aspirasi</h2>
             <p className="links-qris-desc">
-              Salurkan donasi kampanye Anda untuk mendukung biaya operasional relawan, pengadaan alat peraga, dan perjuangan aspirasi rakyat.
+              Cetak dan tunjukkan Kode QR ini kepada warga Kabupaten Nusantara. Dengan sekali pindai, warga dapat langsung menyalurkan pengaduan, keluhan, maupun saran secara instan!
             </p>
           </div>
           
-          <div className="links-qris-image-wrapper">
-            <img src="images/qris-donasi.png" alt="QRIS Donasi Ridho Saputra" className="links-qris-image" />
-            <div className="links-qris-scan-overlay">Scan QRIS Untuk Berdonasi</div>
+          <div className="links-qris-image-wrapper" style={{ background: '#ffffff', padding: '12px' }}>
+            {qrCodeImageUrl ? (
+              <img src={qrCodeImageUrl} alt="QR Code Aspirasi Warga" className="links-qris-image" style={{ width: '100%', maxWidth: '200px', margin: '0 auto' }} />
+            ) : (
+              <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1a1a2e' }}>Memuat Kode QR...</div>
+            )}
+            <div className="links-qris-scan-overlay" style={{ background: 'var(--color-primary)' }}>PINDAI UNTUK ADUAN KILAT</div>
           </div>
 
           <div className="links-qris-instructions">
-            <p><strong>Cara Berdonasi:</strong></p>
+            <p><strong>Cara Penggunaan Kode QR:</strong></p>
             <ol>
-              <li>Pindai QRIS di atas dengan aplikasi e-wallet (GoPay, OVO, Dana, ShopeePay) atau m-Banking Anda.</li>
-              <li>Masukkan jumlah donasi komitmen Anda, lalu selesaikan pembayaran.</li>
-              <li>Atau transfer bank langsung ke Rekening Tim Pemenangan:</li>
+              <li>Pindai Kode QR di atas menggunakan kamera handphone Anda.</li>
+              <li>Tuliskan nama Anda, pilih kecamatan, dan ketik keluhan/saran Anda.</li>
+              <li>Aspirasi Anda akan terkirim langsung ke database tim koordinasi dan WhatsApp pusat.</li>
             </ol>
-            <div className="links-bank-info">
-              <strong>Bank Mandiri</strong><br />
-              No. Rekening: <code>123-456-789-012</code><br />
-              a.n. <strong>Tim Kampanye Ridho Saputra</strong>
-            </div>
+            <a 
+              href={downloadQrCodeUrl} 
+              className="btn-secondary" 
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center', padding: '10px 16px', fontSize: 'var(--font-size-xs)', marginTop: '8px' }}
+            >
+              <FiDownload /> Unduh QR Code (Untuk Brosur & Banner)
+            </a>
           </div>
         </div>
 
         {/* Quick Links Hub */}
         <div className="links-buttons-hub">
-          <h3 className="links-hub-title">Tautan Cepat & Aksi</h3>
+          <h3 className="links-hub-title">Tautan Cepat & Layanan</h3>
           
-          <Link to="/aspirasi" className="links-btn links-btn-primary animate-pulse-btn">
+          <Link to="/qr-aspirasi" className="links-btn links-btn-primary animate-pulse-btn">
             <FiMessageCircle className="links-btn-icon" />
             <div className="links-btn-text">
-              <span className="links-btn-main">Sampaikan Aspirasi Warga</span>
-              <span className="links-btn-sub">Laporan pembangunan, usulan program, & saran</span>
+              <span className="links-btn-main">Formulir Kilat Aspirasi</span>
+              <span className="links-btn-sub">Tampilan sederhana khusus handphone untuk aduan kilat</span>
+            </div>
+          </Link>
+
+          <Link to="/aspirasi" className="links-btn">
+            <FiMessageCircle className="links-btn-icon" style={{ color: 'var(--color-secondary)' }} />
+            <div className="links-btn-text">
+              <span className="links-btn-main">Pojok Aspirasi & Pelacakan Progres</span>
+              <span className="links-btn-sub">Kirim aspirasi detail & pantau penyelesaian real-time</span>
             </div>
           </Link>
 
           <Link to="/dukungan" className="links-btn">
             <FiUsers className="links-btn-icon" />
             <div className="links-btn-text">
-              <span className="links-btn-main">Daftar Relawan & Saksi</span>
-              <span className="links-btn-sub">Gabung barisan pendukung pemenangan</span>
+              <span className="links-btn-main">Beri Dukungan & Relawan</span>
+              <span className="links-btn-sub">Gabung barisan saksi TPS & relawan pemenangan</span>
             </div>
           </Link>
 
@@ -90,7 +122,7 @@ export default function LinksPage() {
             <FiBookOpen className="links-btn-icon" />
             <div className="links-btn-text">
               <span className="links-btn-main">Kabar dari Rakyat</span>
-              <span className="links-btn-sub">Berita, dokumentasi lapangan, & artikel terbaru</span>
+              <span className="links-btn-sub">Dokumentasi lapangan & kabar berita perjuangan terbaru</span>
             </div>
           </Link>
 

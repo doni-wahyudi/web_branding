@@ -1,0 +1,168 @@
+/* Simplified QR & Quick Aspiration Page Styles */
+
+.quick-aspirasi-page {
+  background: var(--color-bg-primary);
+  min-height: calc(100vh - var(--navbar-height));
+  padding-top: var(--navbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 80px;
+}
+
+.quick-aspirasi-page::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: var(--color-primary-glow);
+  filter: blur(140px);
+  opacity: 0.15;
+  z-index: 1;
+}
+
+.quick-container {
+  width: 100%;
+  max-width: 960px;
+  padding: 40px 20px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.quick-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.quick-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+.quick-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Grid Layout */
+.quick-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+  align-items: start;
+}
+
+.quick-qr-card,
+.quick-form-card {
+  padding: 32px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-glow);
+}
+
+.quick-card-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.quick-card-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* QR Code Box */
+.quick-qr-box {
+  margin: 0 auto 24px;
+  max-width: 250px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: var(--border-radius);
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: var(--transition-smooth);
+  text-align: center;
+}
+
+.quick-qr-box:hover {
+  transform: scale(1.02);
+}
+
+.quick-qr-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.quick-qr-badge {
+  margin-top: 12px;
+  background: #c0392b;
+  color: #ffffff;
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 4px;
+  display: inline-block;
+  letter-spacing: 1px;
+}
+
+/* Success Alert */
+.quick-success-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.2);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  color: #27ae60;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Footer info */
+.quick-footer {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+/* Responsiveness */
+@media (max-width: 868px) {
+  .quick-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .quick-qr-card {
+    order: 2; /* Form on top for mobile users scanning QR */
+  }
+  
+  .quick-form-card {
+    order: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-qr-card,
+  .quick-form-card {
+    padding: 24px;
+  }
+}

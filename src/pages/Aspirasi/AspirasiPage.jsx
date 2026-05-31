@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiMessageCircle, FiUser, FiMapPin, FiCalendar, FiTag, FiSend } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import siteConfig from '../../data/siteConfig';
-import aspirations, { statusLabels } from '../../data/aspirations';
+import initialAspirations, { statusLabels } from '../../data/aspirations';
+import { supabase } from '../../utils/supabaseClient';
 import './AspirasiPage.css';
 
 export default function AspirasiPage() {
@@ -14,32 +15,116 @@ export default function AspirasiPage() {
     detail: '',
   });
 
+  const [aspirationsList, setAspirationsList] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Load aspirations from Supabase if connected, otherwise fallback to localStorage / static data
+    async function fetchAspirations() {
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('aspirations')
+            .select('*')
+            .order('date', { ascending: false });
+          
+          if (error) throw error;
+          if (data && data.length > 0) {
+            setAspirationsList(data);
+            return;
+          }
+        } catch (err) {
+          console.error('Gagal mengambil data dari Supabase:', err.message);
+        }
+      }
+      
+      // Fallback: check localStorage, otherwise use initial static data
+      const saved = localStorage.getItem('aspirations-data');
+      if (saved) {
+        setAspirationsList(JSON.parse(saved));
+      } else {
+        setAspirationsList(initialAspirations);
+      }
+    }
+
+    fetchAspirations();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+    
     const message = `*ASPIRASI RAKYAT*%0A%0A*Nama:* ${form.nama}%0A*No. HP:* ${form.phone}%0A*Kecamatan:* ${form.kecamatan}%0A*Kategori:* ${form.category}%0A%0A*Detail Aspirasi:*%0A${form.detail}`;
+    
+    // 1. Save data
+    if (supabase) {
+      try {
+        const { error } = await supabase.from('aspirations').insert([
+          {
+            name: form.nama,
+            phone: form.phone,
+            kecamatan: form.kecamatan,
+            category: form.category,
+            subject: `Aspirasi ${form.category}`,
+            detail: form.detail,
+            status: 'received',
+            date: new Date().toISOString().split('T')[0]
+          }
+        ]);
+        if (error) throw error;
+        
+        // Refresh local list from Supabase
+        const { data } = await supabase.from('aspirations').select('*').order('date', { ascending: false });
+        if (data) setAspirationsList(data);
+      } catch (err) {
+        console.error('Gagal menyimpan ke Supabase:', err.message);
+      }
+    } else {
+      // Save locally to localStorage
+      const newAspiration = {
+        id: Date.now(),
+        name: form.nama,
+        phone: form.phone,
+        kecamatan: form.kecamatan,
+        category: form.category,
+        subject: `Aspirasi ${form.category}`,
+        detail: form.detail,
+        status: 'received',
+        date: new Date().toISOString().split('T')[0]
+      };
+      const updated = [newAspiration, ...aspirationsList];
+      setAspirationsList(updated);
+      localStorage.setItem('aspirations-data', JSON.stringify(updated));
+    }
+
+    setSubmitting(false);
+
+    // 2. Proceed to WhatsApp
     const waLink = `https://wa.me/${siteConfig.whatsapp}?text=${message}`;
     window.open(waLink, '_blank');
+
+    // Reset Form
+    setForm({ nama: '', phone: '', kecamatan: '', category: '', detail: '' });
   };
 
-  const filtered = aspirations.filter(a => {
+  const filtered = aspirationsList.filter(a => {
     if (filterStatus !== 'all' && a.status !== filterStatus) return false;
     if (filterCategory !== 'all' && a.category !== filterCategory) return false;
     return true;
   });
 
-  const total = aspirations.length;
-  const received = aspirations.filter(a => a.status === 'received').length;
-  const processing = aspirations.filter(a => a.status === 'processing').length;
-  const done = aspirations.filter(a => a.status === 'done').length;
+  const total = aspirationsList.length;
+  const received = aspirationsList.filter(a => a.status === 'received').length;
+  const processing = aspirationsList.filter(a => a.status === 'processing').length;
+  const done = aspirationsList.filter(a => a.status === 'done').length;
 
-  const categories = [...new Set(aspirations.map(a => a.category))];
+  const categories = [...new Set(aspirationsList.map(a => a.category))];
 
   return (
     <div className="aspirasi-page">
@@ -138,8 +223,8 @@ export default function AspirasiPage() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary form-submit">
-                <FiSend /> Kirim via WhatsApp
+              <button type="submit" className="btn-primary form-submit" disabled={submitting}>
+                <FiSend /> {submitting ? 'Mengirim...' : 'Kirim via WhatsApp'}
               </button>
 
               <div className="form-whatsapp-note">
@@ -169,9 +254,9 @@ export default function AspirasiPage() {
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>Total: {total} aspirasi</span>
             </div>
             <div className="progress-bar-wrapper">
-              <div className="progress-bar-segment" style={{ width: `${(done / total) * 100}%`, background: 'var(--color-status-done)' }}></div>
-              <div className="progress-bar-segment" style={{ width: `${(processing / total) * 100}%`, background: 'var(--color-status-processing)' }}></div>
-              <div className="progress-bar-segment" style={{ width: `${(received / total) * 100}%`, background: 'var(--color-status-received)' }}></div>
+              <div className="progress-bar-segment" style={{ width: `${total > 0 ? (done / total) * 100 : 0}%`, background: 'var(--color-status-done)' }}></div>
+              <div className="progress-bar-segment" style={{ width: `${total > 0 ? (processing / total) * 100 : 0}%`, background: 'var(--color-status-processing)' }}></div>
+              <div className="progress-bar-segment" style={{ width: `${total > 0 ? (received / total) * 100 : 0}%`, background: 'var(--color-status-received)' }}></div>
             </div>
             <div className="progress-labels">
               <span className="progress-label">
@@ -205,7 +290,7 @@ export default function AspirasiPage() {
           {/* Cards */}
           <div className="transparansi-grid">
             {filtered.map(a => (
-              <div key={a.id} className="aspirasi-card">
+              <div key={a.id || a.created_at} className="aspirasi-card">
                 <div className="aspirasi-card-header">
                   <h3 className="aspirasi-card-title">{a.subject}</h3>
                   <span className={`aspirasi-card-status ${a.status}`}>

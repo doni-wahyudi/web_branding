@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { FiLock, FiLogOut, FiInbox, FiClock, FiCheckCircle, FiSave, FiRefreshCw, FiCopy, FiMapPin, FiCalendar, FiTag, FiUser } from 'react-icons/fi';
+import { FiLock, FiLogOut, FiInbox, FiClock, FiCheckCircle, FiSave, FiRefreshCw, FiCopy, FiMapPin, FiCalendar, FiTag, FiUser, FiCloudLightning, FiCheck } from 'react-icons/fi';
 import initialAspirations from '../../data/aspirations';
 import siteConfig from '../../data/siteConfig';
+import { supabase } from '../../utils/supabaseClient';
 import './AdminPage.css';
 
 export default function AdminPage() {
@@ -11,6 +12,7 @@ export default function AdminPage() {
   const [aspirationsList, setAspirationsList] = useState([]);
   const [copiedIndex, setCopiedIndex] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState('');
+  const [savingCardId, setSavingCardId] = useState(null);
 
   useEffect(() => {
     // Check if authenticated in current session
@@ -19,14 +21,35 @@ export default function AdminPage() {
       setIsAuthenticated(true);
     }
 
-    // Load aspirations from localStorage or fallback to initial data
+    fetchAspirations();
+  }, []);
+
+  const fetchAspirations = async () => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('aspirations')
+          .select('*')
+          .order('date', { ascending: false });
+        
+        if (error) throw error;
+        if (data && data.length > 0) {
+          setAspirationsList(data);
+          return;
+        }
+      } catch (err) {
+        console.error('Gagal mengambil data dari Supabase:', err.message);
+      }
+    }
+
+    // Fallback: load aspirations from localStorage or fallback to initial data
     const savedAspirations = localStorage.getItem('aspirations-data');
     if (savedAspirations) {
       setAspirationsList(JSON.parse(savedAspirations));
     } else {
       setAspirationsList(initialAspirations);
     }
-  }, []);
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -46,6 +69,7 @@ export default function AdminPage() {
 
   const handleStatusChange = (id, newStatus) => {
     const updated = aspirationsList.map(item => {
+      // Handle both integer ids (fallback) and bigints from Supabase
       if (item.id === id) {
         return { ...item, status: newStatus };
       }
@@ -64,9 +88,38 @@ export default function AdminPage() {
     setAspirationsList(updated);
   };
 
-  const handleSaveAll = () => {
+  const handleSaveCard = async (id) => {
+    const item = aspirationsList.find(a => a.id === id);
+    if (!item) return;
+
+    setSavingCardId(id);
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('aspirations')
+          .update({ status: item.status, response: item.response })
+          .eq('id', id);
+        
+        if (error) throw error;
+        setSaveSuccess(`Aspirasi #${id} berhasil diperbarui di Supabase!`);
+      } catch (err) {
+        console.error('Gagal memperbarui ke Supabase:', err.message);
+        alert(`Gagal menyimpan ke Supabase: ${err.message}`);
+      }
+    } else {
+      // Save locally to localStorage
+      localStorage.setItem('aspirations-data', JSON.stringify(aspirationsList));
+      setSaveSuccess(`Perubahan aspirasi disimpan secara lokal!`);
+    }
+
+    setSavingCardId(null);
+    setTimeout(() => setSaveSuccess(''), 3000);
+  };
+
+  const handleSaveAllLocal = () => {
     localStorage.setItem('aspirations-data', JSON.stringify(aspirationsList));
-    setSaveSuccess('Seluruh perubahan berhasil disimpan di browser!');
+    setSaveSuccess('Seluruh data lokal berhasil disimpan di browser!');
     setTimeout(() => setSaveSuccess(''), 3000);
   };
 
@@ -80,7 +133,6 @@ export default function AdminPage() {
   };
 
   const handleCopyJSON = () => {
-    // Generate clean javascript export content
     const code = `const aspirations = ${JSON.stringify(aspirationsList, null, 2)};\n\nexport const statusLabels = {\n  received: { label: 'Diterima', color: 'var(--color-status-received)' },\n  processing: { label: 'Diproses', color: 'var(--color-status-processing)' },\n  done: { label: 'Terealisasi', color: 'var(--color-status-done)' }\n};\n\nexport default aspirations;`;
     
     navigator.clipboard.writeText(code).then(() => {
@@ -138,7 +190,14 @@ export default function AdminPage() {
       <header className="admin-dashboard-header">
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 className="admin-dashboard-title">Dashboard Aspirasi</h1>
+            <h1 className="admin-dashboard-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              Dashboard Aspirasi 
+              {supabase ? (
+                <span className="db-badge active"><FiCloudLightning /> Supabase Connected</span>
+              ) : (
+                <span className="db-badge"><FiCloudLightning /> Local Offline Mode</span>
+              )}
+            </h1>
             <p className="admin-dashboard-subtitle">
               Mengelola data aspirasi masuk untuk tim pendukung <strong>{siteConfig.name}</strong>
             </p>
@@ -160,21 +219,30 @@ export default function AdminPage() {
         {/* Admin Controls Panel */}
         <section className="admin-controls-card">
           <div className="admin-controls-info">
-            <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700, marginBottom: '6px' }}>Pusat Integrasi Data</h3>
+            <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700, marginBottom: '6px' }}>
+              {supabase ? 'Mode Database Cloud Aktif' : 'Pusat Integrasi Data'}
+            </h3>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-              Karena website ini berbasis static-deployment (GitHub Pages), Anda dapat memperbarui status di bawah secara lokal, lalu klik <strong>Simpan Perubahan</strong> agar tersimpan di browser ini. Untuk memperbarui website secara permanen bagi semua pengunjung, klik <strong>Salin File Kode JS</strong> lalu gantikan isi file <code>src/data/aspirations.js</code> di proyek.
+              {supabase 
+                ? 'Website terhubung langsung dengan Supabase. Anda dapat memperbarui status & menulis tindak lanjut per aspirasi dan langsung menyimpannya ke database cloud dengan tombol "Simpan ke DB" di tiap kartu.'
+                : 'Sistem terhubung secara lokal. Anda dapat memperbarui status di bawah secara lokal, lalu klik "Simpan Perubahan Browser" agar tersimpan di browser ini. Hubungkan Supabase dengan menuliskan kredensial di file .env untuk mengaktifkan sinkronisasi otomatis.'
+              }
             </p>
           </div>
           <div className="admin-controls-actions">
-            <button onClick={handleSaveAll} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FiSave /> Simpan Perubahan Browser
-            </button>
+            {!supabase && (
+              <button onClick={handleSaveAllLocal} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FiSave /> Simpan Perubahan Browser
+              </button>
+            )}
             <button onClick={handleCopyJSON} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-secondary-light)', borderColor: 'var(--color-secondary)' }}>
               <FiCopy /> {copiedIndex ? 'Tersalin!' : 'Salin File Kode JS'}
             </button>
-            <button onClick={handleResetData} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8 }}>
-              <FiRefreshCw /> Setel Ulang Data
-            </button>
+            {!supabase && (
+              <button onClick={handleResetData} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8 }}>
+                <FiRefreshCw /> Setel Ulang Data
+              </button>
+            )}
           </div>
         </section>
 
@@ -191,32 +259,32 @@ export default function AdminPage() {
             <div className="admin-stat-icon" style={{ background: 'rgba(231, 76, 60, 0.15)', color: 'var(--color-status-received)' }}><FiInbox /></div>
             <div className="admin-stat-info">
               <span className="admin-stat-value">{received}</span>
-              <span className="admin-stat-label">Diterima (Merah)</span>
+              <span className="admin-stat-label">Diterima</span>
             </div>
           </div>
           <div className="admin-stat-card">
             <div className="admin-stat-icon" style={{ background: 'rgba(240, 165, 0, 0.15)', color: 'var(--color-status-processing)' }}><FiClock /></div>
             <div className="admin-stat-info">
               <span className="admin-stat-value">{processing}</span>
-              <span className="admin-stat-label">Diproses (Kuning)</span>
+              <span className="admin-stat-label">Diproses</span>
             </div>
           </div>
           <div className="admin-stat-card">
             <div className="admin-stat-icon" style={{ background: 'rgba(39, 174, 96, 0.15)', color: 'var(--color-status-done)' }}><FiCheckCircle /></div>
             <div className="admin-stat-info">
               <span className="admin-stat-value">{done}</span>
-              <span className="admin-stat-label">Terealisasi (Hijau)</span>
+              <span className="admin-stat-label">Terealisasi</span>
             </div>
           </div>
         </section>
 
         {/* Aspirations manager table / cards */}
         <section className="admin-list-section">
-          <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 700, marginBottom: '24px' }}>Daftar Aspirasi Masyarakat</h2>
+          <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 700, marginBottom: '24px' }}>Daftar Aspirasi Warga</h2>
           
           <div className="admin-cards-list">
             {aspirationsList.map(a => (
-              <div key={a.id} className="admin-aspiration-card">
+              <div key={a.id || a.created_at} className="admin-aspiration-card">
                 <div className="admin-card-main">
                   <div className="admin-card-details">
                     <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
@@ -251,7 +319,7 @@ export default function AdminPage() {
                       </select>
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '0' }}>
+                    <div className="form-group" style={{ marginBottom: '16px' }}>
                       <label className="form-label" style={{ fontSize: 'var(--font-size-xs)' }}>Tindak Lanjut / Jawaban Tim</label>
                       <textarea
                         className="form-textarea"
@@ -261,6 +329,19 @@ export default function AdminPage() {
                         style={{ minHeight: '80px', padding: '8px 12px', fontSize: 'var(--font-size-sm)', resize: 'vertical' }}
                       />
                     </div>
+
+                    <button 
+                      onClick={() => handleSaveCard(a.id)} 
+                      className="btn-primary" 
+                      style={{ fontSize: 'var(--font-size-xs)', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', justifyContent: 'center' }}
+                      disabled={savingCardId === a.id}
+                    >
+                      {savingCardId === a.id ? (
+                        <>Sedang Menyimpan...</>
+                      ) : (
+                        <>{supabase ? <FiCheck /> : <FiSave />} {supabase ? 'Simpan ke Database' : 'Simpan Perubahan'}</>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
