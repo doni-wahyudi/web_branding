@@ -8,8 +8,10 @@ import AspirasiPage from './pages/Aspirasi/AspirasiPage';
 import KabarPage from './pages/Kabar/KabarPage';
 import KabarDetailPage from './pages/Kabar/KabarDetailPage';
 import RekamJejakPage from './pages/RekamJejak/RekamJejakPage';
-import RelawanPage from './pages/Relawan/RelawanPage';
+import DukunganPage from './pages/Dukungan/DukunganPage';
 import SettingsPage from './pages/Settings/SettingsPage';
+import AdminPage from './pages/Admin/AdminPage';
+import LinksPage from './pages/Links/LinksPage';
 import './App.css';
 
 function ThemeLoader() {
@@ -35,8 +37,11 @@ function App() {
           <Route path="/kabar" element={<KabarPage />} />
           <Route path="/kabar/:slug" element={<KabarDetailPage />} />
           <Route path="/rekam-jejak" element={<RekamJejakPage />} />
-          <Route path="/relawan" element={<RelawanPage />} />
+          <Route path="/relawan" element={<DukunganPage />} />
+          <Route path="/dukungan" element={<DukunganPage />} />
           <Route path="/pengaturan-tampilan-rs" element={<SettingsPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/tautan" element={<LinksPage />} />
         </Routes>
       </main>
       <Footer />

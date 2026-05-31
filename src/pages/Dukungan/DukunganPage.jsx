@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FiUsers, FiShield, FiHeart, FiTrendingUp, FiSend } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import siteConfig from '../../data/siteConfig';
-import './RelawanPage.css';
+import './DukunganPage.css';
 
 const whyJoinData = [
   {
@@ -24,7 +24,7 @@ const whyJoinData = [
 
 const testimonials = [
   {
-    quote: "Menjadi relawan Pak Ridho membuka mata saya tentang betapa pentingnya suara rakyat. Kami tidak hanya bekerja untuk menang, tapi benar-benar membantu warga.",
+    quote: "Menjadi bagian dari pendukung Pak Ridho membuka mata saya tentang betapa pentingnya suara rakyat. Kami tidak hanya bekerja untuk menang, tapi benar-benar membantu warga.",
     author: "Dimas Pratama",
     role: "Relawan sejak 2019",
   },
@@ -40,7 +40,7 @@ const testimonials = [
   },
 ];
 
-export default function RelawanPage() {
+export default function DukunganPage() {
   const [form, setForm] = useState({
     nama: '',
     nik: '',
@@ -57,35 +57,35 @@ export default function RelawanPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const roleLabel = form.role === 'relawan' ? 'Relawan Pemenangan' : form.role === 'saksi' ? 'Saksi TPS' : 'Relawan & Saksi TPS';
-    const message = `*PENDAFTARAN RELAWAN*%0A%0ANama: ${form.nama}%0ANIK: ${form.nik}%0ANo. HP: ${form.phone}%0AKecamatan: ${form.kecamatan}%0AKelurahan/Desa: ${form.kelurahan}%0APilihan: ${roleLabel}`;
+    const message = `*PENDAFTARAN RELAWAN & DUKUNGAN*%0A%0ANama: ${form.nama}%0ANIK: ${form.nik}%0ANo. HP: ${form.phone}%0AKecamatan: ${form.kecamatan}%0AKelurahan/Desa: ${form.kelurahan}%0APilihan Dukungan: ${roleLabel}`;
     const waLink = `https://wa.me/${siteConfig.whatsapp}?text=${message}`;
     window.open(waLink, '_blank');
   };
 
   return (
-    <div className="relawan-page">
+    <div className="dukungan-page">
       {/* Hero */}
-      <section className="relawan-hero">
+      <section className="dukungan-hero">
         <div className="container">
           <div className="badge" style={{ marginBottom: '16px' }}>
-            <FiUsers /> Relawan & Dukungan
+            <FiUsers /> Dukungan & Relawan
           </div>
-          <h1 className="section-title">Bergabung Bersama Kami</h1>
+          <h1 className="section-title">Kanal Dukungan Anda</h1>
           <p className="section-subtitle">
-            Jadilah bagian dari perubahan. Daftarkan diri Anda sebagai relawan pemenangan atau saksi TPS untuk masa depan yang lebih baik.
+            Jadilah bagian dari perubahan nyata. Berikan dukungan Anda sebagai relawan pemenangan, saksi TPS, maupun kontributor gerakan untuk masa depan Kabupaten Nusantara yang lebih baik.
           </p>
         </div>
       </section>
 
       {/* Why Join */}
-      <section className="relawan-why">
+      <section className="dukungan-why">
         <div className="container">
-          <div className="relawan-why-grid">
+          <div className="dukungan-why-grid">
             {whyJoinData.map((item, index) => (
-              <div key={index} className="relawan-why-card">
-                <div className="relawan-why-icon">{item.icon}</div>
-                <h3 className="relawan-why-title">{item.title}</h3>
-                <p className="relawan-why-desc">{item.description}</p>
+              <div key={index} className="dukungan-why-card">
+                <div className="dukungan-why-icon">{item.icon}</div>
+                <h3 className="dukungan-why-title">{item.title}</h3>
+                <p className="dukungan-why-desc">{item.description}</p>
               </div>
             ))}
           </div>
@@ -93,12 +93,12 @@ export default function RelawanPage() {
       </section>
 
       {/* Form */}
-      <section className="relawan-form-section">
+      <section className="dukungan-form-section">
         <div className="container">
-          <div className="relawan-form-wrapper animate-fade-in-up">
-            <h2 className="relawan-form-title">Formulir Pendaftaran</h2>
-            <p className="relawan-form-desc">
-              Isi data diri Anda di bawah ini. Data akan dikirim langsung ke WhatsApp tim koordinasi relawan.
+          <div className="dukungan-form-wrapper animate-fade-in-up">
+            <h2 className="dukungan-form-title">Formulir Komitmen Dukungan</h2>
+            <p className="dukungan-form-desc">
+              Isi data diri Anda di bawah ini. Data komitmen dukungan akan dikirim langsung ke WhatsApp tim koordinasi pusat.
             </p>
 
             <form onSubmit={handleSubmit}>
@@ -108,7 +108,7 @@ export default function RelawanPage() {
                   <input type="text" name="nama" className="form-input" placeholder="Masukkan nama lengkap" value={form.nama} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">NIK</label>
+                  <label className="form-label">NIK (Nomor Induk Kependudukan)</label>
                   <input type="text" name="nik" className="form-input" placeholder="16 digit NIK" maxLength={16} value={form.nik} onChange={handleChange} required />
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function RelawanPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Daftar Sebagai</label>
+                <label className="form-label">Bentuk Komitmen Dukungan</label>
                 <div className="form-radio-group">
                   <div className="form-radio-option">
                     <input type="radio" id="role-relawan" name="role" value="relawan" checked={form.role === 'relawan'} onChange={handleChange} />
@@ -159,12 +159,12 @@ export default function RelawanPage() {
               </div>
 
               <button type="submit" className="btn-primary form-submit" style={{ marginTop: '8px', width: '100%', justifyContent: 'center' }}>
-                <FiSend /> Daftar via WhatsApp
+                <FiSend /> Kirim Dukungan via WhatsApp
               </button>
 
               <div className="form-whatsapp-note">
                 <FaWhatsapp size={18} />
-                Pendaftaran Anda akan dikirim langsung ke WhatsApp tim koordinasi
+                Pernyataan dukungan Anda akan dikirim langsung ke WhatsApp tim koordinasi
               </div>
             </form>
           </div>
@@ -172,24 +172,24 @@ export default function RelawanPage() {
       </section>
 
       {/* Counter */}
-      <section className="relawan-counter">
+      <section className="dukungan-counter">
         <div className="container">
-          <div className="relawan-counter-number">2.450+</div>
-          <p className="relawan-counter-label">Relawan dan Pendukung Terdaftar</p>
+          <div className="dukungan-counter-number">2.450+</div>
+          <p className="dukungan-counter-label">Relawan & Pendukung Terdaftar Secara Resmi</p>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="relawan-testimonials">
+      <section className="dukungan-testimonials">
         <div className="container">
-          <div className="relawan-testimonials-header">
+          <div className="dukungan-testimonials-header">
             <div className="badge" style={{ marginBottom: '16px' }}>Testimoni</div>
-            <h2 className="section-title">Kata Mereka tentang Kami</h2>
+            <h2 className="section-title">Kata Mereka tentang Perjuangan Kita</h2>
           </div>
           <div className="testimonials-grid">
             {testimonials.map((item, index) => (
               <div key={index} className="testimonial-card">
-                <p className="testimonial-quote">{item.quote}</p>
+                <p className="testimonial-quote">"{item.quote}"</p>
                 <div className="testimonial-author">{item.author}</div>
                 <div className="testimonial-role">{item.role}</div>
               </div>

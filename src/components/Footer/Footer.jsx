@@ -43,7 +43,7 @@ export default function Footer() {
             <Link to="/aspirasi">Pojok Aspirasi</Link>
             <Link to="/kabar">Kabar dari Rakyat</Link>
             <Link to="/rekam-jejak">Rekam Jejak</Link>
-            <Link to="/relawan">Relawan & Dukungan</Link>
+            <Link to="/dukungan">Relawan & Dukungan</Link>
           </div>
 
           {/* Layanan */}
@@ -51,7 +51,7 @@ export default function Footer() {
             <h4 className="footer-col-title">Layanan</h4>
             <Link to="/aspirasi">Sampaikan Aspirasi</Link>
             <Link to="/aspirasi">Transparansi Aspirasi</Link>
-            <Link to="/relawan">Daftar Relawan</Link>
+            <Link to="/dukungan">Daftar Pendukung</Link>
             <Link to="/kabar">Berita Terkini</Link>
           </div>
 

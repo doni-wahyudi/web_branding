@@ -121,11 +121,11 @@ export default function HomePage() {
           <div className="home-cta-card">
             <h2>Bergabunglah Bersama Kami</h2>
             <p>
-              Jadilah bagian dari perubahan. Daftarkan diri Anda sebagai relawan pemenangan atau saksi TPS untuk masa depan yang lebih baik.
+              Jadilah bagian dari gerakan perubahan nyata. Daftarkan diri Anda sebagai relawan pemenangan, saksi TPS, atau berikan bentuk dukungan lainnya untuk masa depan yang lebih baik.
             </p>
             <div className="home-cta-actions">
-              <Link to="/relawan" className="btn-primary">
-                <FiUsers /> Daftar Relawan
+              <Link to="/dukungan" className="btn-primary">
+                <FiUsers /> Beri Dukungan & Relawan
               </Link>
               <Link to="/aspirasi" className="btn-secondary">
                 <FiMessageCircle /> Sampaikan Aspirasi

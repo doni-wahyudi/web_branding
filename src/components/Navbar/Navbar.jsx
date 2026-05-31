@@ -9,7 +9,7 @@ const navItems = [
   { to: '/aspirasi', label: 'Aspirasi' },
   { to: '/kabar', label: 'Kabar' },
   { to: '/rekam-jejak', label: 'Rekam Jejak' },
-  { to: '/relawan', label: 'Relawan' },
+  { to: '/dukungan', label: 'Dukungan' },
 ];
 
 export default function Navbar() {
