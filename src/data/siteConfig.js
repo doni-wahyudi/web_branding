@@ -1,6 +1,6 @@
 const siteConfig = {
   // Tokoh
-  name: "Ridho Saputra",
+  name: "Bagas Pramono",
   title: "Anggota DPRD Provinsi Lampung",
   fullTitle: "Anggota DPRD Provinsi Lampung",
   party: "Partai GEMA",
@@ -11,16 +11,16 @@ const siteConfig = {
   
   // Contact
   whatsapp: "6281234567890",
-  email: "ridho.saputra@gema.id",
+  email: "bagas.pramono@gema.id",
   address: "Kantor DPRD Provinsi Lampung, Jl. Wolter Monginsidi No. 69, Bandar Lampung",
   
   // Social Media
   social: {
-    instagram: "https://instagram.com/ridhosaputra",
-    facebook: "https://facebook.com/ridhosaputra",
-    twitter: "https://twitter.com/ridhosaputra",
-    youtube: "https://youtube.com/@ridhosaputra",
-    tiktok: "https://tiktok.com/@ridhosaputra",
+    instagram: "https://instagram.com/bagaspramono",
+    facebook: "https://facebook.com/bagaspramono",
+    twitter: "https://twitter.com/bagaspramono",
+    youtube: "https://youtube.com/@bagaspramono",
+    tiktok: "https://tiktok.com/@bagaspramono",
   },
 
   // Stats

@@ -38,8 +38,8 @@ export default function TentangPage() {
             <span className="breadcrumb-current">Tentang</span>
           </div>
           <div className="tentang-hero-content animate-fade-in-up">
-            <div className="badge"><FiUser /> Profil Legislator</div>
-            <h1 className="section-title text-left">Mengenal Ridho Saputra</h1>
+            <div className="badge"><FiUser /> Profil Profil</div>
+            <h1 className="section-title text-left">Mengenal Bagas Pramono</h1>
             <p className="section-subtitle text-left">
               Mengabdi dengan ketulusan, berjuang dengan integritas, dan melayani masyarakat Provinsi Lampung dengan tindakan nyata.
             </p>
@@ -71,7 +71,7 @@ export default function TentangPage() {
                 Beliau menempuh pendidikan tinggi di **Institut Pertanian Bogor (IPB)**. Latar belakang akademis S1 Proteksi Tanaman serta S2 Agribisnis memberinya landasan analitis yang kuat tentang ketahanan pangan, rantai pasok ekonomi pertanian, dan strategi pemberdayaan komunitas tani/nelayan yang menjadi tulang punggung perekonomian Provinsi Lampung.
               </p>
               <p className="bio-text">
-                Sebelum memasuki panggung legislatif DPRD Provinsi Lampung, Ridho mendedikasikan bertahun-tahun waktunya dalam aksi kerelawanan sosial. Sebagai inisiator gerakan sosial kepemudaan, beliau percaya bahwa perubahan sejati hanya bisa diwujudkan jika kita mau turun langsung mendengarkan dan merasakan kesulitan warga di lapangan.
+                Sebelum memasuki panggung legislatif DPRD Provinsi Lampung, Bagas mendedikasikan bertahun-tahun waktunya dalam aksi kerelawanan sosial. Sebagai inisiator gerakan sosial kepemudaan, beliau percaya bahwa perubahan sejati hanya bisa diwujudkan jika kita mau turun langsung mendengarkan dan merasakan kesulitan warga di lapangan.
               </p>
               <p className="bio-text font-italic">
                 "Kekuasaan legislatif bukanlah tentang hak istimewa, melainkan kewajiban mutlak untuk menyuarakan aspirasi mereka yang tidak terdengar dan mengawal keadilan bagi seluruh lapisan masyarakat Lampung."

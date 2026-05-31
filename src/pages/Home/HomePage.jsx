@@ -193,7 +193,7 @@ export default function HomePage() {
                   
                   <div className="cv-card-footer">
                     <Link to="/tentang" className="btn-secondary w-full text-center" style={{ justifyContent: 'center' }}>
-                      Selengkapnya Tentang Ridho <FiArrowRight />
+                      Selengkapnya Tentang Bagas <FiArrowRight />
                     </Link>
                   </div>
                 </div>
