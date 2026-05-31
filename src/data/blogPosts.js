@@ -14,7 +14,7 @@ Pak Surya, salah satu warga yang pertama kali menyampaikan aspirasi, tak bisa me
 
 Inilah bukti bahwa aspirasi rakyat yang diperjuangkan dengan sungguh-sungguh bisa menjadi kenyataan.`,
     category: "Infrastruktur",
-    image: "images/blog-infrastructure.png",
+    image: "images/blog-infrastructure.webp",
     date: "2024-12-15",
     readTime: "4 menit",
     featured: true,
@@ -34,7 +34,7 @@ Berkoordinasi dengan beberapa perusahaan melalui program CSR, beasiswa berhasil 
 
 Para anak kini bisa kembali bersekolah dengan tenang. Senyum mereka adalah hadiah terbesar.`,
     category: "Pendidikan",
-    image: "images/blog-education.png",
+    image: "images/blog-education.webp",
     date: "2024-11-08",
     readTime: "3 menit",
     featured: false,
@@ -54,7 +54,7 @@ Ridho segera mengkoordinasikan masalah ini dengan Dinas Kesehatan. Dalam rapat d
 
 Proses penempatan tenaga medis baru saat ini sedang berjalan. Ridho berjanji akan terus mengawal sampai Puskesmas Pembantu Dusun Harapan kembali aktif melayani warga.`,
     category: "Kesehatan",
-    image: "images/blog-healthcare.png",
+    image: "images/blog-healthcare.webp",
     date: "2025-01-22",
     readTime: "4 menit",
     featured: false,
@@ -64,7 +64,7 @@ Proses penempatan tenaga medis baru saat ini sedang berjalan. Ridho berjanji aka
     slug: "kunjungan-ke-kelompok-tani-makmur",
     title: "Bersama Petani: Kunjungan ke Kelompok Tani Makmur di Kec. Bakti Mulia",
     excerpt: "Ridho turun langsung ke sawah bersama petani, mendengar keluhan tentang mahalnya bibit dan pupuk, serta memperjuangkan bantuan subsidi.",
-    content: `Pertanian adalah tulang punggung ekonomi Kabupaten Nusantara. Namun, banyak petani yang kesulitan karena tingginya harga bibit dan pupuk di pasaran.
+    content: `Pertanian adalah tulang punggung ekonomi Provinsi Lampung. Namun, banyak petani yang kesulitan karena tingginya harga bibit dan pupuk di pasaran.
 
 Pada Januari 2025, Ridho Saputra mengunjungi Kelompok Tani Makmur di Kecamatan Bakti Mulia. Bersama 30 petani anggota kelompok, ia turun langsung ke sawah untuk memahami tantangan yang mereka hadapi.
 
@@ -74,7 +74,7 @@ Dari kunjungan ini, Ridho membawa data konkret tentang kebutuhan bibit dan pupuk
 
 Perjuangan untuk petani terus berlanjut. Karena rakyat yang makmur adalah rakyat yang berdaya.`,
     category: "Ekonomi",
-    image: "images/blog-field-visit.png",
+    image: "images/blog-field-visit.webp",
     date: "2025-02-14",
     readTime: "3 menit",
     featured: false,
@@ -94,7 +94,7 @@ Melalui dana aspirasi DPRD, pembangunan jembatan beton sepanjang 25 meter akhirn
 
 Kini, akses antara Desa Permata dan Berlian terbuka sepanjang tahun. Anak-anak bisa ke sekolah dengan aman, dan perekonomian kedua desa mulai menggeliat.`,
     category: "Infrastruktur",
-    image: "images/blog-infrastructure.png",
+    image: "images/blog-infrastructure.webp",
     date: "2025-01-05",
     readTime: "4 menit",
     featured: false,

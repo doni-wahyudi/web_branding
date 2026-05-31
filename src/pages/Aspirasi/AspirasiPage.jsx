@@ -10,6 +10,7 @@ export default function AspirasiPage() {
   const [form, setForm] = useState({
     nama: '',
     phone: '',
+    kabupaten: '',
     kecamatan: '',
     category: '',
     detail: '',
@@ -60,7 +61,7 @@ export default function AspirasiPage() {
     e.preventDefault();
     setSubmitting(true);
     
-    const message = `*ASPIRASI RAKYAT*%0A%0A*Nama:* ${form.nama}%0A*No. HP:* ${form.phone}%0A*Kecamatan:* ${form.kecamatan}%0A*Kategori:* ${form.category}%0A%0A*Detail Aspirasi:*%0A${form.detail}`;
+    const message = `*ASPIRASI RAKYAT*%0A%0A*Nama:* ${form.nama}%0A*No. HP:* ${form.phone}%0A*Kabupaten:* ${form.kabupaten}%0A*Kecamatan:* ${form.kecamatan}%0A*Kategori:* ${form.category}%0A%0A*Detail Aspirasi:*%0A${form.detail}`;
     
     // 1. Save data
     if (supabase) {
@@ -69,6 +70,7 @@ export default function AspirasiPage() {
           {
             name: form.nama,
             phone: form.phone,
+            kabupaten: form.kabupaten,
             kecamatan: form.kecamatan,
             category: form.category,
             subject: `Aspirasi ${form.category}`,
@@ -91,6 +93,7 @@ export default function AspirasiPage() {
         id: Date.now(),
         name: form.nama,
         phone: form.phone,
+        kabupaten: form.kabupaten,
         kecamatan: form.kecamatan,
         category: form.category,
         subject: `Aspirasi ${form.category}`,
@@ -110,7 +113,7 @@ export default function AspirasiPage() {
     window.open(waLink, '_blank');
 
     // Reset Form
-    setForm({ nama: '', phone: '', kecamatan: '', category: '', detail: '' });
+    setForm({ nama: '', phone: '', kabupaten: '', kecamatan: '', category: '', detail: '' });
   };
 
   const filtered = aspirationsList.filter(a => {
@@ -180,21 +183,43 @@ export default function AspirasiPage() {
 
               <div className="form-row">
                 <div className="form-group">
+                  <label className="form-label">Kabupaten / Kota</label>
+                  <select
+                    name="kabupaten"
+                    className="form-select"
+                    value={form.kabupaten}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setForm(prev => ({ ...prev, kecamatan: '' }));
+                    }}
+                    required
+                  >
+                    <option value="">Pilih Kabupaten / Kota</option>
+                    {Object.keys(siteConfig.kabupatenKecamatan).map(kab => (
+                      <option key={kab} value={kab}>{kab}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
                   <label className="form-label">Kecamatan</label>
                   <select
                     name="kecamatan"
                     className="form-select"
                     value={form.kecamatan}
                     onChange={handleChange}
+                    disabled={!form.kabupaten}
                     required
                   >
                     <option value="">Pilih Kecamatan</option>
-                    {siteConfig.kecamatan.map(k => (
+                    {form.kabupaten && siteConfig.kabupatenKecamatan[form.kabupaten]?.map(k => (
                       <option key={k} value={k}>{k}</option>
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
+              </div>
+
+              <div className="form-row">
+                <div className="form-group" style={{ flex: '1 1 100%' }}>
                   <label className="form-label">Kategori Aspirasi</label>
                   <select
                     name="category"
@@ -299,7 +324,7 @@ export default function AspirasiPage() {
                 </div>
                 <div className="aspirasi-card-meta">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiUser size={12} /> {a.name}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiMapPin size={12} /> {a.kecamatan}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiMapPin size={12} /> {a.kabupaten ? `${a.kabupaten}, ` : ''}{a.kecamatan}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiTag size={12} /> {a.category}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiCalendar size={12} /> {new Date(a.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 </div>

@@ -1,6 +1,6 @@
 # Project Technical Details — Web Politisi
 
-Website personal branding untuk Ridho Saputra, anggota DPRD dari Partai GEMA (Gerakan Muda Mendunia). Deployed and fully functional.
+Website personal branding untuk Ridho Saputra, Anggota DPRD Provinsi Lampung dari Partai GEMA (Gerakan Muda Mendunia). Deployed and fully functional.
 
 ---
 
@@ -9,7 +9,7 @@ Website personal branding untuk Ridho Saputra, anggota DPRD dari Partai GEMA (Ge
 * **Routing**: React Router DOM v7 (Switched to **HashRouter** for seamless GitHub Pages routing)
 * **Icons**: React Icons (Feather + Font Awesome)
 * **Styling**: Vanilla CSS with CSS custom properties (design tokens in `src/index.css`)
-* **Data Layer**: Static JS files in `src/data/` — dummy content, CMS integration planned for future
+* **Data Layer**: Supabase DB with dynamic JSON merge & graceful static/localStorage fallbacks
 * **Theme System**: 6 color variants (red default, blue, green, purple, teal, orange) via `data-theme` attribute + localStorage
 * **WhatsApp Integration**: Forms submit via `wa.me` deep links with pre-formatted messages
 * **Google Font**: Plus Jakarta Sans (loaded in `index.html`)
@@ -23,8 +23,8 @@ Routing uses `#` (HashRouter) to guarantee page refreshes do not trigger 404 err
 | Path | Component | Menu |
 |------|-----------|------|
 | `#/` | `HomePage` | Beranda |
+| `#/tentang` | `TentangPage` | Tentang |
 | `#/aspirasi` | `AspirasiPage` | Aspirasi |
-| `#/aspirasi/transparansi` | `TransparansiPage` | (sub-page) |
 | `#/kabar` | `KabarPage` | Kabar |
 | `#/kabar/:slug` | `KabarDetailPage` | (sub-page) |
 | `#/rekam-jejak` | `RekamJejakPage` | Rekam Jejak (Concept 5 Checkerboard) |
@@ -37,8 +37,9 @@ Routing uses `#` (HashRouter) to guarantee page refreshes do not trigger 404 err
 
 ## 3. Permanently Cleaned Up & Removed Features
 * Removed default Vite boilerplate (`App.css` content, `assets/react.svg` reference)
-* No backend/CMS — all data is static JSON
+* Added full Supabase dynamic integration + Admin CMS panel (7 dashboard tabs) for full content management
 * Removed old horizontal scrolling timeline in favor of the **Concept 5: Checkerboard Matrix (Aspirasi vs Realisasi)**.
+* Switched DAPIL and scope of candidate to Province of Lampung, adding dynamic Kabupaten selectors.
 
 ---
 

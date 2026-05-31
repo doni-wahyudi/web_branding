@@ -9,6 +9,7 @@ export default function QuickAspirasiPage() {
   const [form, setForm] = useState({
     nama: '',
     phone: '',
+    kabupaten: '',
     kecamatan: '',
     detail: '',
   });
@@ -30,7 +31,7 @@ export default function QuickAspirasiPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    const formattedMessage = `*ASPIRASI WARGA (KILAT)*%0A%0A*Nama:* ${form.nama}%0A*No. HP:* ${form.phone}%0A*Kecamatan:* ${form.kecamatan}%0A%0A*Aspirasi:*%0A${form.detail}`;
+    const formattedMessage = `*ASPIRASI WARGA (KILAT)*%0A%0A*Nama:* ${form.nama}%0A*No. HP:* ${form.phone}%0A*Kabupaten:* ${form.kabupaten}%0A*Kecamatan:* ${form.kecamatan}%0A%0A*Aspirasi:*%0A${form.detail}`;
     
     // 1. If Supabase is connected, write directly to the database
     if (supabase) {
@@ -39,6 +40,7 @@ export default function QuickAspirasiPage() {
           {
             name: form.nama,
             phone: form.phone,
+            kabupaten: form.kabupaten,
             kecamatan: form.kecamatan,
             category: 'Lainnya',
             subject: 'Aspirasi Kilat Warga',
@@ -59,6 +61,7 @@ export default function QuickAspirasiPage() {
         id: Date.now(),
         name: form.nama,
         phone: form.phone,
+        kabupaten: form.kabupaten,
         kecamatan: form.kecamatan,
         category: 'Lainnya',
         subject: 'Aspirasi Kilat Warga',
@@ -78,7 +81,7 @@ export default function QuickAspirasiPage() {
 
     // Reset form after a delay
     setTimeout(() => {
-      setForm({ nama: '', phone: '', kecamatan: '', detail: '' });
+      setForm({ nama: '', phone: '', kabupaten: '', kecamatan: '', detail: '' });
       setSubmitSuccess(false);
     }, 4000);
   };
@@ -105,7 +108,7 @@ export default function QuickAspirasiPage() {
           <div className="quick-qr-card">
             <h3 className="quick-card-title">Bagikan QR Code Aspirasi</h3>
             <p className="quick-card-desc">
-              Tunjukkan atau cetak QR Code ini di posko pemenangan, baliho, atau brosur agar warga bisa langsung memindai dan mengirim aspirasi mereka secara mudah lewat handphone!
+              Tunjukkan atau cetak QR Code ini di kantor kelurahan, balai warga, baliho, atau brosur agar warga bisa langsung memindai dan mengirim aspirasi mereka secara mudah lewat handphone!
             </p>
 
             <div className="quick-qr-box">
@@ -164,16 +167,36 @@ export default function QuickAspirasiPage() {
               </div>
 
               <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label className="form-label">Kabupaten / Kota</label>
+                <select
+                  name="kabupaten"
+                  className="form-select"
+                  value={form.kabupaten}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setForm(prev => ({ ...prev, kecamatan: '' }));
+                  }}
+                  required
+                >
+                  <option value="">Pilih Kabupaten / Kota</option>
+                  {Object.keys(siteConfig.kabupatenKecamatan).map(kab => (
+                    <option key={kab} value={kab}>{kab}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label className="form-label">Kecamatan</label>
                 <select
                   name="kecamatan"
                   className="form-select"
                   value={form.kecamatan}
                   onChange={handleChange}
+                  disabled={!form.kabupaten}
                   required
                 >
                   <option value="">Pilih Kecamatan</option>
-                  {siteConfig.kecamatan.map(k => (
+                  {form.kabupaten && siteConfig.kabupatenKecamatan[form.kabupaten]?.map(k => (
                     <option key={k} value={k}>{k}</option>
                   ))}
                 </select>

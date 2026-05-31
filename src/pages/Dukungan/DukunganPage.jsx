@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FiUsers, FiShield, FiHeart, FiTrendingUp, FiSend } from 'react-icons/fi';
+import { FiUsers, FiHeart, FiTrendingUp, FiSend } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import siteConfig from '../../data/siteConfig';
+import { supabase } from '../../utils/supabaseClient';
 import './DukunganPage.css';
 
 const whyJoinData = [
@@ -24,19 +25,19 @@ const whyJoinData = [
 
 const testimonials = [
   {
-    quote: "Menjadi bagian dari pendukung Pak Ridho membuka mata saya tentang betapa pentingnya suara rakyat. Kami tidak hanya bekerja untuk menang, tapi benar-benar membantu warga.",
+    quote: "Menjadi bagian dari gerakan ini membuka mata saya tentang betapa pentingnya suara rakyat. Kami benar-benar turun tangan membantu warga yang membutuhkan.",
     author: "Dimas Pratama",
     role: "Relawan sejak 2019",
   },
   {
-    quote: "Saya bangga menjadi saksi TPS di pemilu kemarin. Prosesnya profesional dan kami diberikan pelatihan yang sangat baik oleh tim Pak Ridho.",
+    quote: "Saya bangga bisa berkontribusi langsung di lapangan. Tim ini profesional dan selalu memberikan arahan yang jelas dalam setiap kegiatan sosial.",
     author: "Siti Nurhaliza",
-    role: "Saksi TPS 2024",
+    role: "Relawan Sosial 2024",
   },
   {
     quote: "Sebagai pemuda, saya merasa ini cara terbaik untuk berkontribusi bagi daerah. Tim ini benar-benar merangkul semua kalangan tanpa membeda-bedakan.",
     author: "Fajar Ramadhan",
-    role: "Relawan Muda GEMA",
+    role: "Relawan Muda",
   },
 ];
 
@@ -45,21 +46,77 @@ export default function DukunganPage() {
     nama: '',
     nik: '',
     phone: '',
+    kabupaten: '',
     kecamatan: '',
     kelurahan: '',
     role: 'relawan',
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const roleLabel = form.role === 'relawan' ? 'Relawan Pemenangan' : form.role === 'saksi' ? 'Saksi TPS' : 'Relawan & Saksi TPS';
-    const message = `*PENDAFTARAN RELAWAN & DUKUNGAN*%0A%0ANama: ${form.nama}%0ANIK: ${form.nik}%0ANo. HP: ${form.phone}%0AKecamatan: ${form.kecamatan}%0AKelurahan/Desa: ${form.kelurahan}%0APilihan Dukungan: ${roleLabel}`;
+    setSubmitting(true);
+    const roleLabel = form.role === 'relawan' ? 'Relawan Lapangan' : form.role === 'donasi' ? 'Kontributor Sosial' : 'Relawan & Kontributor';
+    
+    // 1. Save to Supabase if available
+    if (supabase) {
+      try {
+        const { error } = await supabase.from('volunteers').insert([
+          {
+            name: form.nama,
+            nik: form.nik,
+            phone: form.phone,
+            kabupaten: form.kabupaten,
+            kecamatan: form.kecamatan,
+            kelurahan: form.kelurahan,
+            role: roleLabel,
+            status: 'pending'
+          }
+        ]);
+        if (error) throw error;
+      } catch (err) {
+        console.error('Gagal mendaftar relawan di Supabase:', err.message);
+      }
+    } else {
+      // Mock save to localStorage
+      const saved = localStorage.getItem('volunteers-data');
+      const current = saved ? JSON.parse(saved) : [];
+      const newVol = {
+        id: Date.now(),
+        name: form.nama,
+        nik: form.nik,
+        phone: form.phone,
+        kabupaten: form.kabupaten,
+        kecamatan: form.kecamatan,
+        kelurahan: form.kelurahan,
+        role: roleLabel,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+      localStorage.setItem('volunteers-data', JSON.stringify([newVol, ...current]));
+    }
+
+    setSubmitting(false);
+
+    // 2. Open WhatsApp
+    const message = `*PENDAFTARAN RELAWAN & DUKUNGAN*%0A%0ANama: ${form.nama}%0ANIK: ${form.nik}%0ANo. HP: ${form.phone}%0AKabupaten: ${form.kabupaten}%0AKecamatan: ${form.kecamatan}%0AKelurahan/Desa: ${form.kelurahan}%0ABentuk Kontribusi: ${roleLabel}`;
     const waLink = `https://wa.me/${siteConfig.whatsapp}?text=${message}`;
     window.open(waLink, '_blank');
+
+    // Reset Form
+    setForm({
+      nama: '',
+      nik: '',
+      phone: '',
+      kabupaten: '',
+      kecamatan: '',
+      kelurahan: '',
+      role: 'relawan',
+    });
   };
 
   return (
@@ -72,7 +129,7 @@ export default function DukunganPage() {
           </div>
           <h1 className="section-title">Kanal Dukungan Anda</h1>
           <p className="section-subtitle">
-            Jadilah bagian dari perubahan nyata. Berikan dukungan Anda sebagai relawan pemenangan, saksi TPS, maupun kontributor gerakan untuk masa depan Kabupaten Nusantara yang lebih baik.
+            Jadilah bagian dari gerakan nyata bersama masyarakat. Bergabunglah sebagai relawan lapangan, kontributor sosial, atau pendukung program aspirasi untuk masa depan Provinsi Lampung yang lebih baik.
           </p>
         </div>
       </section>
@@ -119,10 +176,38 @@ export default function DukunganPage() {
                   <input type="tel" name="phone" className="form-input" placeholder="08xxxxxxxxxx" value={form.phone} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
+                  <label className="form-label">Kabupaten / Kota</label>
+                  <select
+                    name="kabupaten"
+                    className="form-select"
+                    value={form.kabupaten}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setForm(prev => ({ ...prev, kecamatan: '' }));
+                    }}
+                    required
+                  >
+                    <option value="">Pilih Kabupaten / Kota</option>
+                    {Object.keys(siteConfig.kabupatenKecamatan).map(kab => (
+                      <option key={kab} value={kab}>{kab}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group" style={{ flex: '1 1 100%' }}>
                   <label className="form-label">Kecamatan</label>
-                  <select name="kecamatan" className="form-select" value={form.kecamatan} onChange={handleChange} required>
+                  <select
+                    name="kecamatan"
+                    className="form-select"
+                    value={form.kecamatan}
+                    onChange={handleChange}
+                    disabled={!form.kabupaten}
+                    required
+                  >
                     <option value="">Pilih Kecamatan</option>
-                    {siteConfig.kecamatan.map(k => (
+                    {form.kabupaten && siteConfig.kabupatenKecamatan[form.kabupaten]?.map(k => (
                       <option key={k} value={k}>{k}</option>
                     ))}
                   </select>
@@ -135,31 +220,31 @@ export default function DukunganPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Bentuk Komitmen Dukungan</label>
+                <label className="form-label">Bentuk Kontribusi</label>
                 <div className="form-radio-group">
                   <div className="form-radio-option">
                     <input type="radio" id="role-relawan" name="role" value="relawan" checked={form.role === 'relawan'} onChange={handleChange} />
                     <label htmlFor="role-relawan" className="form-radio-label">
-                      <FiUsers /> Relawan Pemenangan
+                      <FiUsers /> Relawan Lapangan
                     </label>
                   </div>
                   <div className="form-radio-option">
-                    <input type="radio" id="role-saksi" name="role" value="saksi" checked={form.role === 'saksi'} onChange={handleChange} />
-                    <label htmlFor="role-saksi" className="form-radio-label">
-                      <FiShield /> Saksi TPS
+                    <input type="radio" id="role-donasi" name="role" value="donasi" checked={form.role === 'donasi'} onChange={handleChange} />
+                    <label htmlFor="role-donasi" className="form-radio-label">
+                      <FiHeart /> Kontributor Sosial
                     </label>
                   </div>
                   <div className="form-radio-option">
                     <input type="radio" id="role-both" name="role" value="both" checked={form.role === 'both'} onChange={handleChange} />
                     <label htmlFor="role-both" className="form-radio-label">
-                      <FiHeart /> Keduanya
+                      <FiTrendingUp /> Relawan & Kontributor
                     </label>
                   </div>
                 </div>
               </div>
 
-              <button type="submit" className="btn-primary form-submit" style={{ marginTop: '8px', width: '100%', justifyContent: 'center' }}>
-                <FiSend /> Kirim Dukungan via WhatsApp
+              <button type="submit" className="btn-primary form-submit" style={{ marginTop: '8px', width: '100%', justifyContent: 'center' }} disabled={submitting}>
+                <FiSend /> {submitting ? 'Mengirim...' : 'Kirim Dukungan via WhatsApp'}
               </button>
 
               <div className="form-whatsapp-note">

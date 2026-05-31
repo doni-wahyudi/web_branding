@@ -13,6 +13,7 @@ import SettingsPage from './pages/Settings/SettingsPage';
 import AdminPage from './pages/Admin/AdminPage';
 import LinksPage from './pages/Links/LinksPage';
 import QuickAspirasiPage from './pages/QuickAspirasi/QuickAspirasiPage';
+import TentangPage from './pages/Tentang/TentangPage';
 import './App.css';
 
 function ThemeLoader() {
@@ -34,6 +35,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/tentang" element={<TentangPage />} />
           <Route path="/aspirasi" element={<AspirasiPage />} />
           <Route path="/kabar" element={<KabarPage />} />
           <Route path="/kabar/:slug" element={<KabarDetailPage />} />

@@ -1,12 +1,48 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiCalendar, FiClock } from 'react-icons/fi';
 import { FaWhatsapp, FaFacebook, FaTwitter } from 'react-icons/fa';
-import blogPosts from '../../data/blogPosts';
+import { supabase } from '../../utils/supabaseClient';
+import staticBlogPosts from '../../data/blogPosts';
 import './KabarPage.css';
 
 export default function KabarDetailPage() {
   const { slug } = useParams();
-  const post = blogPosts.find(p => p.slug === slug);
+  const [post, setPost]       = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('posts')
+            .select('*')
+            .eq('slug', slug)
+            .eq('published', true)
+            .single();
+          if (!error && data) {
+            setPost({ ...data, image: data.cover_url || data.image_url || data.image });
+            setLoading(false);
+            return;
+          }
+        } catch (err) { console.error(err.message); }
+      }
+      setPost(staticBlogPosts.find(p => p.slug === slug) || null);
+      setLoading(false);
+    };
+    fetchPost();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="kabar-page">
+        <div className="container" style={{ textAlign: 'center', paddingTop: '120px', color: 'var(--color-text-muted)' }}>
+          Memuat artikel...
+        </div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -21,13 +57,11 @@ export default function KabarDetailPage() {
     );
   }
 
-  const formattedDate = new Date(post.date).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  const formattedDate = new Date(post.date || post.created_at).toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'long', year: 'numeric',
   });
 
-  const paragraphs = post.content.split('\n\n');
+  const paragraphs = (post.content || '').split('\n\n');
 
   return (
     <div className="kabar-page">
@@ -37,16 +71,20 @@ export default function KabarDetailPage() {
             <FiArrowLeft /> Kembali ke Kabar
           </Link>
 
-          <img src={post.image} alt={post.title} className="kabar-detail-hero-image" />
+          {(post.image || post.cover_url) && (
+            <img src={post.image || post.cover_url} alt={post.title} className="kabar-detail-hero-image" />
+          )}
 
           <div className="kabar-detail-meta">
             <span className="kabar-detail-category">{post.category}</span>
             <span className="kabar-detail-date">
               <FiCalendar size={14} /> {formattedDate}
             </span>
-            <span className="kabar-detail-date">
-              <FiClock size={14} /> {post.readTime}
-            </span>
+            {post.readTime && (
+              <span className="kabar-detail-date">
+                <FiClock size={14} /> {post.readTime}
+              </span>
+            )}
           </div>
 
           <h1 className="kabar-detail-title">{post.title}</h1>

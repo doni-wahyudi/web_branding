@@ -28,7 +28,7 @@ export default function LinksPage() {
         {/* Profile Header */}
         <div className="links-profile-header">
           <div className="links-avatar-wrapper">
-            <img src="images/profile-hero.png" alt={siteConfig.name} className="links-avatar" />
+            <img src="images/profile-hero.webp" alt={siteConfig.name} className="links-avatar" />
             <div className="links-avatar-glow"></div>
           </div>
           <h1 className="links-profile-name">{siteConfig.name}</h1>
@@ -52,7 +52,7 @@ export default function LinksPage() {
             <span className="links-qris-badge" style={{ color: 'var(--color-primary-light)' }}>KODE QR SUARA RAKYAT</span>
             <h2 className="links-qris-title">Pindai & Suarakan Aspirasi</h2>
             <p className="links-qris-desc">
-              Cetak dan tunjukkan Kode QR ini kepada warga Kabupaten Nusantara. Dengan sekali pindai, warga dapat langsung menyalurkan pengaduan, keluhan, maupun saran secara instan!
+              Cetak dan tunjukkan Kode QR ini kepada warga Provinsi Lampung. Dengan sekali pindai, warga dapat langsung menyalurkan pengaduan, keluhan, maupun saran secara instan!
             </p>
           </div>
           
@@ -106,7 +106,7 @@ export default function LinksPage() {
             <FiUsers className="links-btn-icon" />
             <div className="links-btn-text">
               <span className="links-btn-main">Beri Dukungan & Relawan</span>
-              <span className="links-btn-sub">Gabung barisan saksi TPS & relawan pemenangan</span>
+              <span className="links-btn-sub">Bergabung sebagai relawan lapangan atau kontributor sosial</span>
             </div>
           </Link>
 

@@ -6,6 +6,7 @@ import './Navbar.css';
 
 const navItems = [
   { to: '/', label: 'Beranda' },
+  { to: '/tentang', label: 'Tentang' },
   { to: '/aspirasi', label: 'Aspirasi' },
   { to: '/kabar', label: 'Kabar' },
   { to: '/rekam-jejak', label: 'Rekam Jejak' },
@@ -39,7 +40,7 @@ export default function Navbar() {
           <div className="navbar-logo-icon">RS</div>
           <div className="navbar-logo-text">
             <span className="navbar-logo-name">{siteConfig.name}</span>
-            <span className="navbar-logo-party">{siteConfig.party}</span>
+            <span className="navbar-logo-party">{siteConfig.title}</span>
           </div>
         </Link>
 

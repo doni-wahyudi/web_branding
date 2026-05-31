@@ -1,353 +1,246 @@
 import { useState, useEffect } from 'react';
-import { FiLock, FiLogOut, FiInbox, FiClock, FiCheckCircle, FiSave, FiRefreshCw, FiCopy, FiMapPin, FiCalendar, FiTag, FiUser, FiCloudLightning, FiCheck } from 'react-icons/fi';
-import initialAspirations from '../../data/aspirations';
+import {
+  FiLock, FiLogOut, FiInbox, FiBookOpen, FiClock,
+  FiUsers, FiSettings, FiAward, FiFileText, FiMail,
+  FiCloudLightning, FiAlertCircle, FiMenu, FiX
+} from 'react-icons/fi';
+import { supabase, signIn, signOut, onAuthStateChange } from '../../utils/supabaseClient';
 import siteConfig from '../../data/siteConfig';
-import { supabase } from '../../utils/supabaseClient';
+
+import AspirasiTab   from './tabs/AspirasiTab';
+import KabarTab      from './tabs/KabarTab';
+import RekamJejakTab from './tabs/RekamJejakTab';
+import PencapaianTab from './tabs/PencapaianTab';
+import KebijakanTab  from './tabs/KebijakanTab';
+import DukunganTab   from './tabs/DukunganTab';
+import ProfilTab     from './tabs/ProfilTab';
+
 import './AdminPage.css';
 
+const TABS = [
+  { id: 'aspirasi',   label: 'Aspirasi',    icon: <FiInbox /> },
+  { id: 'kabar',      label: 'Kabar',       icon: <FiBookOpen /> },
+  { id: 'rekam',      label: 'Rekam Jejak', icon: <FiClock /> },
+  { id: 'pencapaian', label: 'Pencapaian',  icon: <FiAward /> },
+  { id: 'kebijakan',  label: 'Kebijakan',   icon: <FiFileText /> },
+  { id: 'dukungan',   label: 'Dukungan',    icon: <FiUsers /> },
+  { id: 'profil',     label: 'Profil & Config', icon: <FiSettings /> },
+];
+
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
+  const [session, setSession]       = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [email, setEmail]           = useState('');
+  const [password, setPassword]     = useState('');
   const [loginError, setLoginError] = useState('');
-  const [aspirationsList, setAspirationsList] = useState([]);
-  const [copiedIndex, setCopiedIndex] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState('');
-  const [savingCardId, setSavingCardId] = useState(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [activeTab, setActiveTab]   = useState('aspirasi');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Check if authenticated in current session
-    const authStatus = sessionStorage.getItem('admin-auth');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
+    if (!supabase) {
+      setAuthLoading(false);
+      return;
     }
+    // Restore existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
 
-    fetchAspirations();
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
-  const fetchAspirations = async () => {
-    if (supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('aspirations')
-          .select('*')
-          .order('date', { ascending: false });
-        
-        if (error) throw error;
-        if (data && data.length > 0) {
-          setAspirationsList(data);
-          return;
-        }
-      } catch (err) {
-        console.error('Gagal mengambil data dari Supabase:', err.message);
-      }
-    }
-
-    // Fallback: load aspirations from localStorage or fallback to initial data
-    const savedAspirations = localStorage.getItem('aspirations-data');
-    if (savedAspirations) {
-      setAspirationsList(JSON.parse(savedAspirations));
-    } else {
-      setAspirationsList(initialAspirations);
-    }
-  };
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password === 'gema2026' || password === 'admin123') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin-auth', 'true');
-      setLoginError('');
-    } else {
-      setLoginError('Kode akses admin salah. Silakan coba lagi.');
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      const { error } = await signIn(email, password);
+      if (error) throw error;
+    } catch (err) {
+      setLoginError(err.message || 'Login gagal. Periksa email & password Anda.');
+    } finally {
+      setLoginLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('admin-auth');
+  const handleLogout = async () => {
+    await signOut();
+    setSession(null);
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    const updated = aspirationsList.map(item => {
-      // Handle both integer ids (fallback) and bigints from Supabase
-      if (item.id === id) {
-        return { ...item, status: newStatus };
-      }
-      return item;
-    });
-    setAspirationsList(updated);
-  };
+  // ── Loading state ───────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <div className="admin-login-page">
+        <div className="admin-login-wrapper" style={{ textAlign: 'center' }}>
+          <div className="admin-login-spinner" />
+          <p style={{ color: 'var(--color-text-secondary)', marginTop: '16px' }}>Memuat sesi...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleResponseChange = (id, newResponse) => {
-    const updated = aspirationsList.map(item => {
-      if (item.id === id) {
-        return { ...item, response: newResponse };
-      }
-      return item;
-    });
-    setAspirationsList(updated);
-  };
+  // ── Supabase not configured ─────────────────────────────────
+  if (!supabase) {
+    return (
+      <div className="admin-login-page">
+        <div className="admin-login-wrapper animate-fade-in-up">
+          <div className="admin-login-icon" style={{ color: '#f0a500', background: 'rgba(240,165,0,0.1)', borderColor: 'rgba(240,165,0,0.2)' }}>
+            <FiAlertCircle />
+          </div>
+          <h2 className="admin-login-title">Supabase Belum Dikonfigurasi</h2>
+          <p className="admin-login-desc">
+            Isi file <code>.env</code> dengan kredensial Supabase Anda untuk mengaktifkan Admin Panel.
+          </p>
+          <div style={{ background: 'var(--color-bg-tertiary)', borderRadius: 'var(--border-radius)', padding: '16px', textAlign: 'left', fontSize: 'var(--font-size-xs)', fontFamily: 'monospace', color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>
+            VITE_SUPABASE_URL=https://xxx.supabase.co<br />
+            VITE_SUPABASE_ANON_KEY=eyJ...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const handleSaveCard = async (id) => {
-    const item = aspirationsList.find(a => a.id === id);
-    if (!item) return;
-
-    setSavingCardId(id);
-
-    if (supabase) {
-      try {
-        const { error } = await supabase
-          .from('aspirations')
-          .update({ status: item.status, response: item.response })
-          .eq('id', id);
-        
-        if (error) throw error;
-        setSaveSuccess(`Aspirasi #${id} berhasil diperbarui di Supabase!`);
-      } catch (err) {
-        console.error('Gagal memperbarui ke Supabase:', err.message);
-        alert(`Gagal menyimpan ke Supabase: ${err.message}`);
-      }
-    } else {
-      // Save locally to localStorage
-      localStorage.setItem('aspirations-data', JSON.stringify(aspirationsList));
-      setSaveSuccess(`Perubahan aspirasi disimpan secara lokal!`);
-    }
-
-    setSavingCardId(null);
-    setTimeout(() => setSaveSuccess(''), 3000);
-  };
-
-  const handleSaveAllLocal = () => {
-    localStorage.setItem('aspirations-data', JSON.stringify(aspirationsList));
-    setSaveSuccess('Seluruh data lokal berhasil disimpan di browser!');
-    setTimeout(() => setSaveSuccess(''), 3000);
-  };
-
-  const handleResetData = () => {
-    if (window.confirm('Apakah Anda yakin ingin menyetel ulang data ke data bawaan awal? Semua perubahan lokal akan terhapus.')) {
-      localStorage.removeItem('aspirations-data');
-      setAspirationsList(initialAspirations);
-      setSaveSuccess('Data berhasil disetel ulang ke data bawaan.');
-      setTimeout(() => setSaveSuccess(''), 3000);
-    }
-  };
-
-  const handleCopyJSON = () => {
-    const code = `const aspirations = ${JSON.stringify(aspirationsList, null, 2)};\n\nexport const statusLabels = {\n  received: { label: 'Diterima', color: 'var(--color-status-received)' },\n  processing: { label: 'Diproses', color: 'var(--color-status-processing)' },\n  done: { label: 'Terealisasi', color: 'var(--color-status-done)' }\n};\n\nexport default aspirations;`;
-    
-    navigator.clipboard.writeText(code).then(() => {
-      setCopiedIndex(true);
-      setTimeout(() => setCopiedIndex(false), 2000);
-    });
-  };
-
-  // Stats calculation
-  const total = aspirationsList.length;
-  const received = aspirationsList.filter(a => a.status === 'received').length;
-  const processing = aspirationsList.filter(a => a.status === 'processing').length;
-  const done = aspirationsList.filter(a => a.status === 'done').length;
-
-  if (!isAuthenticated) {
+  // ── Login form ──────────────────────────────────────────────
+  if (!session) {
     return (
       <div className="admin-login-page">
         <div className="admin-login-wrapper animate-fade-in-up">
           <div className="admin-login-icon">
             <FiLock />
           </div>
-          <h2 className="admin-login-title">Panel Tim Sukses</h2>
+          <h2 className="admin-login-title">Panel Admin</h2>
           <p className="admin-login-desc">
-            Masukkan kode akses khusus admin untuk mengelola, memperbarui status, dan menjawab aspirasi dari warga.
+            Masuk dengan akun Supabase Admin untuk mengelola seluruh konten website <strong>{siteConfig.name}</strong>.
           </p>
 
           <form onSubmit={handleLogin}>
-            <div className="form-group" style={{ marginBottom: '20px' }}>
-              <label className="form-label" style={{ textAlign: 'left' }}>Kode Akses Admin</label>
+            <div className="form-group" style={{ marginBottom: '16px', textAlign: 'left' }}>
+              <label className="form-label">Email Admin</label>
+              <input
+                type="email"
+                className="form-input"
+                placeholder="admin@example.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div className="form-group" style={{ marginBottom: '20px', textAlign: 'left' }}>
+              <label className="form-label">Password</label>
               <input
                 type="password"
                 className="form-input"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
-              {loginError && <p className="admin-login-error">{loginError}</p>}
-              <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '8px', textAlign: 'left' }}>
-                💡 Hint: Gunakan <code>gema2026</code> atau <code>admin123</code> untuk menguji panel.
-              </p>
             </div>
-            <button type="submit" className="btn-primary form-submit" style={{ width: '100%', justifyContent: 'center' }}>
-              Buka Dashboard Admin
+            {loginError && (
+              <div className="admin-login-error" style={{ marginBottom: '16px' }}>
+                <FiAlertCircle style={{ display: 'inline', marginRight: '6px' }} />
+                {loginError}
+              </div>
+            )}
+            <button
+              type="submit"
+              className="btn-primary form-submit"
+              style={{ width: '100%', justifyContent: 'center' }}
+              disabled={loginLoading}
+            >
+              {loginLoading ? 'Memverifikasi...' : 'Masuk ke Dashboard'}
             </button>
           </form>
+
+          <p style={{ marginTop: '16px', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+            <FiMail style={{ display: 'inline', marginRight: '4px' }} />
+            Buat akun admin di Supabase Dashboard → Authentication → Users
+          </p>
         </div>
       </div>
     );
   }
 
+  // ── Dashboard ───────────────────────────────────────────────
+  const tabComponents = {
+    aspirasi:   <AspirasiTab />,
+    kabar:      <KabarTab />,
+    rekam:      <RekamJejakTab />,
+    pencapaian: <PencapaianTab />,
+    kebijakan:  <KebijakanTab />,
+    dukungan:   <DukunganTab />,
+    profil:     <ProfilTab />,
+  };
+
   return (
-    <div className="admin-dashboard-page">
-      {/* Admin Header */}
-      <header className="admin-dashboard-header">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 className="admin-dashboard-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              Dashboard Aspirasi 
-              {supabase ? (
-                <span className="db-badge active"><FiCloudLightning /> Supabase Connected</span>
-              ) : (
-                <span className="db-badge"><FiCloudLightning /> Local Offline Mode</span>
-              )}
-            </h1>
-            <p className="admin-dashboard-subtitle">
-              Mengelola data aspirasi masuk untuk tim pendukung <strong>{siteConfig.name}</strong>
-            </p>
+    <div className="admin-cms-page">
+      {/* Sidebar */}
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="admin-sidebar-header">
+          <div className="admin-sidebar-brand">
+            <span className="admin-sidebar-brandname">Admin CMS</span>
+            <span className={`db-badge active`} style={{ fontSize: '10px', padding: '3px 8px' }}>
+              <FiCloudLightning /> Live
+            </span>
           </div>
-          <button onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', fontSize: 'var(--font-size-sm)' }}>
+          <div className="admin-sidebar-user">
+            <FiMail size={12} />
+            <span>{session.user.email}</span>
+          </div>
+        </div>
+
+        <nav className="admin-sidebar-nav">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              className={`admin-nav-item ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
+            >
+              <span className="admin-nav-icon">{tab.icon}</span>
+              <span className="admin-nav-label">{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="admin-sidebar-footer">
+          <button onClick={handleLogout} className="admin-logout-btn">
             <FiLogOut /> Keluar
           </button>
         </div>
-      </header>
+      </aside>
 
-      <div className="container animate-fade-in-up" style={{ paddingBottom: '100px' }}>
-        {/* Save Notifications */}
-        {saveSuccess && (
-          <div className="admin-alert-success animate-fade-in-up">
-            {saveSuccess}
-          </div>
-        )}
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="admin-sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
 
-        {/* Admin Controls Panel */}
-        <section className="admin-controls-card">
-          <div className="admin-controls-info">
-            <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700, marginBottom: '6px' }}>
-              {supabase ? 'Mode Database Cloud Aktif' : 'Pusat Integrasi Data'}
-            </h3>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-              {supabase 
-                ? 'Website terhubung langsung dengan Supabase. Anda dapat memperbarui status & menulis tindak lanjut per aspirasi dan langsung menyimpannya ke database cloud dengan tombol "Simpan ke DB" di tiap kartu.'
-                : 'Sistem terhubung secara lokal. Anda dapat memperbarui status di bawah secara lokal, lalu klik "Simpan Perubahan Browser" agar tersimpan di browser ini. Hubungkan Supabase dengan menuliskan kredensial di file .env untuk mengaktifkan sinkronisasi otomatis.'
-              }
-            </p>
-          </div>
-          <div className="admin-controls-actions">
-            {!supabase && (
-              <button onClick={handleSaveAllLocal} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FiSave /> Simpan Perubahan Browser
-              </button>
-            )}
-            <button onClick={handleCopyJSON} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-secondary-light)', borderColor: 'var(--color-secondary)' }}>
-              <FiCopy /> {copiedIndex ? 'Tersalin!' : 'Salin File Kode JS'}
-            </button>
-            {!supabase && (
-              <button onClick={handleResetData} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8 }}>
-                <FiRefreshCw /> Setel Ulang Data
-              </button>
-            )}
-          </div>
-        </section>
+      {/* Main content */}
+      <div className="admin-main">
+        {/* Mobile top bar */}
+        <div className="admin-mobile-topbar">
+          <button className="admin-mobile-menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            {sidebarOpen ? <FiX /> : <FiMenu />}
+          </button>
+          <span className="admin-mobile-title">
+            {TABS.find(t => t.id === activeTab)?.label}
+          </span>
+          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center' }}>
+            <FiLogOut />
+          </button>
+        </div>
 
-        {/* Stats strip */}
-        <section className="admin-stats-strip">
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-primary)' }}><FiInbox /></div>
-            <div className="admin-stat-info">
-              <span className="admin-stat-value">{total}</span>
-              <span className="admin-stat-label">Total Masuk</span>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon" style={{ background: 'rgba(231, 76, 60, 0.15)', color: 'var(--color-status-received)' }}><FiInbox /></div>
-            <div className="admin-stat-info">
-              <span className="admin-stat-value">{received}</span>
-              <span className="admin-stat-label">Diterima</span>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon" style={{ background: 'rgba(240, 165, 0, 0.15)', color: 'var(--color-status-processing)' }}><FiClock /></div>
-            <div className="admin-stat-info">
-              <span className="admin-stat-value">{processing}</span>
-              <span className="admin-stat-label">Diproses</span>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon" style={{ background: 'rgba(39, 174, 96, 0.15)', color: 'var(--color-status-done)' }}><FiCheckCircle /></div>
-            <div className="admin-stat-info">
-              <span className="admin-stat-value">{done}</span>
-              <span className="admin-stat-label">Terealisasi</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Aspirations manager table / cards */}
-        <section className="admin-list-section">
-          <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 700, marginBottom: '24px' }}>Daftar Aspirasi Warga</h2>
-          
-          <div className="admin-cards-list">
-            {aspirationsList.map(a => (
-              <div key={a.id || a.created_at} className="admin-aspiration-card">
-                <div className="admin-card-main">
-                  <div className="admin-card-details">
-                    <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
-                      <h3 className="admin-card-title">{a.subject}</h3>
-                      <span className={`aspirasi-card-status ${a.status}`}>
-                        {statusLabels[a.status].label}
-                      </span>
-                    </div>
-
-                    <div className="aspirasi-card-meta" style={{ marginBottom: '16px' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiUser size={12} /> {a.name}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiMapPin size={12} /> {a.kecamatan}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiTag size={12} /> {a.category}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiCalendar size={12} /> {new Date(a.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    </div>
-
-                    <p className="admin-card-text">{a.detail}</p>
-                  </div>
-
-                  <div className="admin-card-inputs">
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label className="form-label" style={{ fontSize: 'var(--font-size-xs)' }}>Ubah Status Progres</label>
-                      <select
-                        className="form-select"
-                        value={a.status}
-                        onChange={(e) => handleStatusChange(a.id, e.target.value)}
-                        style={{ padding: '8px 12px', fontSize: 'var(--font-size-sm)' }}
-                      >
-                        <option value="received">🔴 Diterima (Received)</option>
-                        <option value="processing">🟡 Sedang Diproses (Processing)</option>
-                        <option value="done">🟢 Terealisasi (Done)</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label className="form-label" style={{ fontSize: 'var(--font-size-xs)' }}>Tindak Lanjut / Jawaban Tim</label>
-                      <textarea
-                        className="form-textarea"
-                        placeholder="Tuliskan respon resmi, dana aspirasi yang dialokasikan, atau tanggal penyelesaian..."
-                        value={a.response || ''}
-                        onChange={(e) => handleResponseChange(a.id, e.target.value)}
-                        style={{ minHeight: '80px', padding: '8px 12px', fontSize: 'var(--font-size-sm)', resize: 'vertical' }}
-                      />
-                    </div>
-
-                    <button 
-                      onClick={() => handleSaveCard(a.id)} 
-                      className="btn-primary" 
-                      style={{ fontSize: 'var(--font-size-xs)', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', justifyContent: 'center' }}
-                      disabled={savingCardId === a.id}
-                    >
-                      {savingCardId === a.id ? (
-                        <>Sedang Menyimpan...</>
-                      ) : (
-                        <>{supabase ? <FiCheck /> : <FiSave />} {supabase ? 'Simpan ke Database' : 'Simpan Perubahan'}</>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="admin-tab-content">
+          {tabComponents[activeTab]}
+        </div>
       </div>
     </div>
   );

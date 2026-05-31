@@ -102,7 +102,7 @@ export const policies = [
     title: "Perda Perlindungan Petani Lokal",
     year: "2021",
     status: "Berlaku",
-    description: "Memberikan subsidi bibit dan pupuk, perlindungan harga gabah, serta akses pasar bagi petani lokal di Kabupaten Nusantara.",
+    description: "Memberikan subsidi bibit dan pupuk, perlindungan harga gabah, serta akses pasar bagi petani lokal di Provinsi Lampung.",
   },
   {
     title: "Perda Transparansi Anggaran Desa",

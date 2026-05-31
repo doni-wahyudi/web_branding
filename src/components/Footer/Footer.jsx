@@ -18,7 +18,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="footer-brand-desc">
-              {siteConfig.tagline}. Bersama rakyat membangun masa depan yang lebih baik untuk Kabupaten Nusantara.
+              {siteConfig.tagline}. Bersama rakyat membangun masa depan yang lebih baik untuk Provinsi Lampung.
             </p>
             <div className="footer-social">
               <a href={siteConfig.social.instagram} className="footer-social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
